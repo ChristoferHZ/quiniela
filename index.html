@@ -160,6 +160,16 @@ table.datos td.n,table.datos th.n{text-align:right;font-family:var(--f-num)}
 table.datos tr:hover td{background:var(--panel2)}
 .envuelve{overflow-x:auto}
 
+.ult{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.ult .p{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:52px;border-radius:5px;padding:4px 6px;font-family:var(--f-num);font-size:12px;font-weight:700;color:#fff;line-height:1.15}
+.ult .p small{font-size:9px;font-weight:600;opacity:.9;letter-spacing:.02em;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ult .p.g{background:var(--s1)} .ult .p.e{background:var(--sx)} .ult .p.p{background:var(--warn)}
+.ult .nada{color:var(--muted);font-size:12.5px}
+tr.equipo{cursor:pointer}
+tr.equipo:hover td{background:var(--panel3)}
+tr.equipo.abierto td{background:var(--accsoft);font-weight:650}
+td.detalleq{background:var(--panel2);padding:12px 14px}
+.flecha{display:inline-block;width:12px;color:var(--muted);font-family:var(--f-num);font-size:10px}
 .aviso{padding:10px 14px;border-radius:6px;font-size:12.5px;border:1px solid var(--line);background:var(--panel2);line-height:1.55}
 .nota{font-size:12.5px;color:var(--muted);line-height:1.55}
 .prosa{font-size:14px;line-height:1.7;max-width:70ch;display:flex;flex-direction:column;gap:12px}
@@ -372,7 +382,7 @@ JOR.forEach(j => j.partidos.forEach(p => {
   if (r) p.real = { gl: r.gl, gv: r.gv };
 }));
 
-const ui = { jornada: JOR.length ? JOR[JOR.length - 1].id : "", abierto: null, sims: 10000, presupuesto: 8, pestana: "boleto", div: 1 };
+const ui = { jornada: JOR.length ? JOR[JOR.length - 1].id : "", abierto: null, sims: 10000, presupuesto: 8, pestana: "boleto", div: 1, equipo: null };
 const jornada = () => JOR.find(j => j.id === ui.jornada) || JOR[JOR.length - 1];
 const partidos = () => (jornada() ? jornada().partidos : []);
 const getPartido = id => { for (const j of JOR) { const p = j.partidos.find(x => x.id === id); if (p) return p; } return null; };
@@ -395,6 +405,26 @@ const STATS = (() => {
   return m;
 })();
 const statsDe = id => STATS[id] || { pj: 0, gf: 0, ga: 0, pts: 0, ult: [], forma: "" };
+function partidosDe(id, max) {
+  const out = RESULTADOS
+    .filter(r => (r.l === id || r.v === id) && r.gl != null)
+    .sort((a, b) => nz(b.jor, 0) - nz(a.jor, 0))
+    .map(r => {
+      const casa = r.l === id;
+      const gf = casa ? r.gl : r.gv, gc = casa ? r.gv : r.gl;
+      return { jor: r.jor, rival: casa ? r.v : r.l, casa, gf, gc, res: gf > gc ? 'G' : gf === gc ? 'E' : 'P' };
+    });
+  return max ? out.slice(0, max) : out;
+}
+function ultimos(id, n) {
+  const ps = partidosDe(id, n);
+  if (!ps.length) return '<div class="ult"><span class="nada">Sin partidos jugados todavia.</span></div>';
+  return '<div class="ult">' + ps.map(p =>
+    '<span class="p ' + p.res.toLowerCase() + '" title="Jornada ' + p.jor + ' - ' +
+    (p.casa ? 'en casa contra ' : 'fuera contra ') + esc(nombre(p.rival)) + '">' +
+    p.gf + '-' + p.gc + '<small>' + (p.casa ? '' : '@') + esc(nombre(p.rival).slice(0, 8)) + '</small></span>').join('') +
+    '</div>';
+}
 
 function fuerza(id) {
   const t = eq(id), s = statsDe(id);
@@ -652,13 +682,14 @@ function vCabecera() {
     '<span class="nota">' + RESULTADOS.length + " partidos de Liga con resultado · " + Object.keys(STATS).length + " equipos ya en juego</span></div></header>";
 }
 function vPestanas() {
-  const t = [["boleto", "Pronóstico"], ["simulador", "Simulador"], ["equipos", "Equipos"], ["acierto", "Acierto del modelo"], ["premios", "Premios y bote"], ["ayuda", "Cómo funciona"]];
+  const t = [["boleto", "Pronóstico"], ["simulador", "Simulador"], ["resultados", "Resultados"], ["equipos", "Equipos"], ["acierto", "Acierto del modelo"], ["premios", "Premios y bote"], ["ayuda", "Cómo funciona"]];
   return '<div class="pestanas">' + t.map(x =>
     '<button data-a="pestana" data-p="' + x[0] + '" class="' + (ui.pestana === x[0] ? "on" : "") + '">' + x[1] + "</button>").join("") + "</div>";
 }
 function vPanel() {
   switch (ui.pestana) {
     case "simulador": return vSimulador();
+    case "resultados": return vResultados();
     case "equipos": return vEquipos();
     case "acierto": return vAcierto();
     case "premios": return vPremios();
@@ -851,13 +882,18 @@ function vDetalle() {
     '<h3 class="sub2" style="margin-top:4px">Cómo llegan los dos equipos</h3><div class="desglose">' +
     '<div class="l"><span>Ataque</span><span>' + fL.atk.toFixed(2) + " – " + fV.atk.toFixed(2) + " gol/partido</span></div>" +
     '<div class="l"><span>Defensa</span><span>' + fL.def.toFixed(2) + " – " + fV.def.toFixed(2) + " gol/partido</span></div>" +
-    '<div class="l"><span>Racha</span><span>' + (fL.forma || "—") + " / " + (fV.forma || "—") + "</span></div>" +
     '<div class="l"><span>Jugados y puntos</span><span>' + fL.pj + " (" + fL.pts + ") – " + fV.pj + " (" + fV.pts + ")</span></div>" +
     (c.h
       ? '<div class="l"><span>Precedentes en este campo<br><span class="nota">' + esc(c.h.nota) + "</span></span><span>" +
         c.h.n + " duelos<br>" + c.h.g1 + " · " + c.h.gx + " · " + c.h.g2 + " (1-X-2)</span></div>"
       : '<div class="l"><span>Precedentes en este campo</span><span>sin historial cargado</span></div>') +
     "</div>" +
+    '<h3 class="sub2" style="margin-top:4px">Últimos 5 partidos</h3>' +
+    '<span class="nota">Del más reciente al más antiguo. La arroba indica partido fuera de casa.</span>' +
+    '<div style="display:flex;flex-direction:column;gap:9px">' +
+    '<div><div class="nota" style="margin-bottom:4px">' + esc(nombre(p.l)) + '</div>' + ultimos(p.l, 5) + '</div>' +
+    '<div><div class="nota" style="margin-bottom:4px">' + esc(nombre(p.v)) + '</div>' + ultimos(p.v, 5) + '</div>' +
+    '</div>' +
     '<h3 class="sub2" style="margin-top:4px">Bajas y sancionados</h3>' +
     '<div class="det" style="gap:10px">' + bloqueBajas("L") + bloqueBajas("V") + "</div>" +
     (ajustes ? '<h3 class="sub2" style="margin-top:4px">Qué mueve el pronóstico</h3><div class="desglose">' + ajustes + "</div>" : "") +
@@ -921,20 +957,93 @@ function vSimSalida() {
     '<div class="pilas" style="margin-top:8px">' + cols + "</div>";
 }
 
+function vResultados() {
+  const d = ui.div;
+  const rs = RESULTADOS.filter(r => EQUIPOS[r.l] && EQUIPOS[r.l].div === d && r.gl != null);
+  const totJ = rs.length;
+  const totGoles = rs.reduce((s, r) => s + r.gl + r.gv, 0);
+  const gp = totJ ? totGoles / totJ : 0;
+  const cont = [0, 0, 0];
+  rs.forEach(r => cont[signoDe(r.gl, r.gv)]++);
+  const celda = (v, t) => '<div class="celda"><b>' + v + "</b><small>" + t + "</small></div>";
+  const abultado = totJ ? rs.slice().sort((a, b) => (b.gl + b.gv) - (a.gl + a.gv))[0] : null;
+  const aviso = totJ
+    ? '<div class="aviso">Estos ' + totJ + ' partidos son los que alimentan el modelo: de aquí sale la fuerza y la racha de cada equipo. El resultado más abultado hasta la fecha es el ' +
+      esc(nombre(abultado.l)) + " " + abultado.gl + "-" + abultado.gv + " " + esc(nombre(abultado.v)) +
+      " (jornada " + abultado.jor + "). El reparto de signos de esta división es un dato útil a la hora de rellenar el boleto.</div>"
+    : '<div class="aviso">Todavía no se ha jugado ningún partido en esta división.</div>';
+
+  const porJor = {};
+  rs.forEach(r => { (porJor[r.jor] = porJor[r.jor] || []).push(r); });
+  const jornadas = Object.keys(porJor).map(Number).sort((a, b) => b - a);
+  const tarjetas = jornadas.map(jn => {
+    const ps = porJor[jn];
+    const goles = ps.reduce((s, r) => s + r.gl + r.gv, 0);
+    const media = ps.length ? goles / ps.length : 0;
+    const c = [0, 0, 0];
+    ps.forEach(r => c[signoDe(r.gl, r.gv)]++);
+    const filas = ps.map(r => {
+      const sg = signoDe(r.gl, r.gv);
+      return "<tr><td class='n'>" + esc(nombre(r.l)) + "</td><td class='n'><b>" + r.gl + "-" + r.gv + "</b></td>" +
+        "<td>" + esc(nombre(r.v)) + "</td><td><span class=\"chip\">" + SIGNOS[sg] + "</span></td>" +
+        "<td class='n'>" + (r.gl + r.gv) + "</td></tr>";
+    }).join("");
+    return '<section class="tarjeta"><div class="cabtar"><div><h2 class="tit">Jornada ' + jn + "</h2>" +
+      '<span class="eyebrow">' + ps.length + " partidos · " + goles + " goles · " + media.toFixed(2) + " de media</span></div>" +
+      '<span class="nota">1: ' + c[0] + "  X: " + c[1] + "  2: " + c[2] + "</span></div>" +
+      '<div class="cuerpo"><div class="envuelve"><table class="datos">' +
+      "<tr><th class='n'>Local</th><th class='n'>Resultado</th><th>Visitante</th><th>Signo</th><th class='n'>Goles</th></tr>" +
+      filas + "</table></div></div></section>";
+  }).join("");
+
+  return '<section class="tarjeta"><div class="cabtar"><div><h2 class="tit">Resultados de la temporada</h2>' +
+    '<span class="eyebrow">' + (d === 1 ? "Primera División" : "Segunda División") + "</span></div>" +
+    '<div class="pestanas"><button data-a="div" data-d="1" class="' + (d === 1 ? "on" : "") + '">Primera</button>' +
+    '<button data-a="div" data-d="2" class="' + (d === 2 ? "on" : "") + '">Segunda</button></div></div>' +
+    '<div class="res">' +
+    celda(totJ, "Partidos jugados") +
+    celda(totGoles, "Goles totales") +
+    celda(gp.toFixed(2), "Goles por partido") +
+    celda(totJ ? pct0(cont[0] / totJ) + "%" : "—", "Victorias locales") +
+    celda(totJ ? pct0(cont[1] / totJ) + "%" : "—", "Empates") +
+    celda(totJ ? pct0(cont[2] / totJ) + "%" : "—", "Victorias visitantes") +
+    "</div>" +
+    '<div class="cuerpo">' + aviso + "</div></section>" +
+    tarjetas;
+}
+
 function vEquipos() {
   const d = ui.div;
-  const filas = idsDiv(d).map(id => ({ id, f: fuerza(id), s: statsDe(id) }))
-    .sort((a, b) => b.s.pts - a.s.pts || (b.s.gf - b.s.ga) - (a.s.gf - a.s.ga) || a.f.def - b.f.def)
-    .map(x => "<tr><td>" + esc(nombre(x.id)) + "</td><td class='n'>" + x.s.pj + "</td><td class='n'>" + x.s.pts + "</td>" +
+  const ordenados = idsDiv(d).map(id => ({ id, f: fuerza(id), s: statsDe(id) }))
+    .sort((a, b) => b.s.pts - a.s.pts || (b.s.gf - b.s.ga) - (a.s.gf - a.s.ga) || a.f.def - b.f.def);
+  const filas = ordenados.map((x, i) => {
+    const abierta = ui.equipo === x.id;
+    const fila = '<tr class="equipo' + (abierta ? " abierto" : "") + '" data-a="equipo" data-id="' + x.id + '">' +
+      '<td><span class="flecha">' + (abierta ? "▾" : "▸") + "</span>" + (i + 1) + ". " + esc(nombre(x.id)) + "</td>" +
+      "<td class='n'>" + x.s.pj + "</td><td class='n'>" + x.s.pts + "</td>" +
       "<td class='n'>" + x.s.gf + "</td><td class='n'>" + x.s.ga + "</td>" +
       "<td class='n'>" + x.f.atk.toFixed(2) + "</td><td class='n'>" + x.f.def.toFixed(2) + "</td>" +
-      "<td>" + (x.s.forma || "—") + "</td><td class='n'>" + pct0(x.f.w) + "%</td></tr>").join("");
+      "<td>" + (x.s.forma || "—") + "</td><td class='n'>" + pct0(x.f.w) + "%</td></tr>";
+    if (!abierta) return fila;
+    const ps = partidosDe(x.id);
+    const tablaDet = ps.length
+      ? '<div class="envuelve"><table class="datos"><tr><th class="n">J</th><th>Casa / Fuera</th><th>Rival</th><th>Resultado</th><th class="n">Goles</th></tr>' +
+        ps.map(p => "<tr><td class='n'>" + p.jor + "</td><td>" + (p.casa ? "Casa" : "Fuera") + "</td><td>" + esc(nombre(p.rival)) + "</td>" +
+          "<td><b>" + p.gf + "-" + p.gc + "</b></td><td class='n'>" + (p.gf + p.gc) + "</td></tr>").join("") +
+        "</table></div>"
+      : '<div class="nota">Todavía no ha jugado ningún partido esta temporada.</div>';
+    const detalle = '<tr><td class="detalleq" colspan="9">' +
+      '<div class="nota" style="margin-bottom:8px">Todos los partidos de ' + esc(nombre(x.id)) + " hasta la fecha</div>" +
+      ultimos(x.id, 5) +
+      '<div style="margin-top:10px">' + tablaDet + "</div></td></tr>";
+    return fila + detalle;
+  }).join("");
   return '<section class="tarjeta"><div class="cabtar"><div><h2 class="tit">Estado de los equipos</h2>' +
     '<span class="eyebrow">clasificación y fuerza estimada · de aquí sale todo el pronóstico</span></div>' +
     '<div class="pestanas"><button data-a="div" data-d="1" class="' + (d === 1 ? "on" : "") + '">Primera</button>' +
     '<button data-a="div" data-d="2" class="' + (d === 2 ? "on" : "") + '">Segunda</button></div></div>' +
     '<div class="cuerpo">' +
-    '<div class="aviso" style="margin-bottom:12px"><b>Ataque</b> y <b>defensa</b> son los goles que se espera que marque y encaje ese equipo por partido. La última columna dice qué parte de ese número viene ya de resultados de esta temporada y qué parte sigue siendo la estimación inicial.</div>' +
+    '<div class="aviso" style="margin-bottom:12px"><b>Ataque</b> y <b>defensa</b> son los goles que se espera que marque y encaje ese equipo por partido. La última columna dice qué parte de ese número viene ya de resultados de esta temporada y qué parte sigue siendo la estimación inicial. Pulsa cualquier equipo para desplegar todos sus partidos.</div>' +
     '<div class="envuelve"><table class="datos"><tr><th>Equipo</th><th class="n">PJ</th><th class="n">Pts</th><th class="n">GF</th><th class="n">GC</th><th class="n">Ataque</th><th class="n">Defensa</th><th>Racha</th><th class="n">Datos</th></tr>' +
     filas + "</table></div></div></section>";
 }
@@ -1052,8 +1161,9 @@ app.addEventListener("click", e => {
   const t = e.target.closest("[data-a]");
   if (!t || t.tagName === "SELECT") return;
   const a = t.dataset.a;
-  if (a === "pestana") { ui.pestana = t.dataset.p; ui.abierto = null; render(); }
-  else if (a === "div") { ui.div = +t.dataset.d; render(); }
+  if (a === "pestana") { ui.pestana = t.dataset.p; ui.abierto = null; ui.equipo = null; render(); }
+  else if (a === "div") { ui.div = +t.dataset.d; ui.equipo = null; render(); }
+  else if (a === "equipo") { ui.equipo = ui.equipo === t.dataset.id ? null : t.dataset.id; render(); }
   else if (a === "abrir") {
     ui.abierto = ui.abierto === t.dataset.pid ? null : t.dataset.pid;
     render();
