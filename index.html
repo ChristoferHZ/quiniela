@@ -163,7 +163,9 @@ table.datos tr:hover td{background:var(--panel2)}
 .ult{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .ult .p{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:52px;border-radius:5px;padding:4px 6px;font-family:var(--f-num);font-size:12px;font-weight:700;color:#fff;line-height:1.15}
 .ult .p small{font-size:9px;font-weight:600;opacity:.9;letter-spacing:.02em;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ult .p.g{background:var(--s1)} .ult .p.e{background:var(--s2)} .ult .p.p{background:var(--warn)}
+/* ojo: las clases de resultado NO pueden llamarse g/e/p, porque la pastilla ya lleva
+   la clase base "p" y el selector .p.p acabaria pintando de rojo todas las pastillas */
+.ult .p.gan{background:var(--s1)} .ult .p.emp{background:var(--s2)} .ult .p.per{background:var(--warn)}
 .ult .nada{color:var(--muted);font-size:12.5px}
 tr.equipo{cursor:pointer}
 tr.equipo:hover td{background:var(--panel3)}
@@ -271,7 +273,7 @@ const JORNADAS = [
     nombre: "Jornada 1", fecha: "2026-08-15", partidos: [
       { l: "alaves", v: "getafe" }, { l: "sevilla", v: "rayo" },
       { l: "racing", v: "villarreal" }, { l: "espanyol", v: "levante" },
-      { l: "celta", v: "osasuna" }, { l: "andorra", v: "ceuta" },
+      { l: "celta", v: "osasuna", apl: "aplazado al 27 de agosto" }, { l: "andorra", v: "ceuta" },
       { l: "cadiz", v: "celtaf" }, { l: "oviedo", v: "granada" },
       { l: "mallorca", v: "valladolid" }, { l: "eibar", v: "tenerife" },
       { l: "burgos", v: "cordoba" }, { l: "girona", v: "leganes" },
@@ -489,8 +491,9 @@ function partidosDe(id, max) {
 function ultimos(id, n) {
   const ps = partidosDe(id, n);
   if (!ps.length) return '<div class="ult"><span class="nada">Sin partidos jugados todavia.</span></div>';
+  const clase = { G: "gan", E: "emp", P: "per" };
   return '<div class="ult">' + ps.map(p =>
-    '<span class="p ' + p.res.toLowerCase() + '" title="Jornada ' + p.jor + ' - ' +
+    '<span class="p ' + clase[p.res] + '" title="Jornada ' + p.jor + ' - ' +
     (p.casa ? 'en casa contra ' : 'fuera contra ') + esc(nombre(p.rival)) + '">' +
     p.gf + '-' + p.gc + '<small>' + (p.casa ? '' : '@') + esc(nombre(p.rival).slice(0, 8)) + '</small></span>').join('') +
     '</div>';
@@ -813,6 +816,12 @@ function vBoleto() {
       marcas.unshift('<span class="chip valor">marcar ' + t.k + " · " + pct(t.p) + "%</span>");
     }
     let clase = "";
+    // un partido sin resultado en una jornada ya jugada tiene que decir por que,
+    // si no la fila parece rota
+    if (!p.real) {
+      if (p.apl) marcas.push('<span class="chip riesgo">' + esc(p.apl) + "</span>");
+      else if (ps.some(x => x.real)) marcas.push('<span class="chip">sin jugar todavia</span>');
+    }
     if (p.real) {
       // el pleno se acierta con el resultado exacto en 0/1/2/M, no con el 1X2
       const bien = pleno ? plenoDe(p.real) === plenoOpciones(c)[0].k : signoDe(p.real.gl, p.real.gv) === sg;
