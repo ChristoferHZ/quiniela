@@ -211,8 +211,8 @@ const SIGNOS = ["1", "X", "2"];
    ║  BLOQUE DE DATOS — lo mantiene Claude. El usuario no edita nada aquí.    ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
-const DATOS_ACTUALIZADO = "2026-08-20";
-const DATOS_PENDIENTE = "Quedan por jugarse tres partidos de la jornada 1 de Primera (Valencia-Betis el 25, Real Madrid-Real Sociedad el 26 y Barcelona-Athletic el 27). Falta el parte de lesionados y sancionados, y el historial de enfrentamientos de diez de los quince emparejamientos.";
+const DATOS_ACTUALIZADO = "2026-08-20";  // parte de bajas J2 y H2H
+const DATOS_PENDIENTE = "Quedan por jugarse cuatro partidos de la jornada 1 de Primera: Valencia-Betis el 25, Real Madrid-Real Sociedad el 26, y Barcelona-Athletic y Celta-Osasuna el 27, este último aplazado por el estado del césped de Balaídos. Del historial de enfrentamientos solo falta Castellón-Sabadell: no hay ninguna fuente que desglose el balance concreto en Castalia.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -280,22 +280,82 @@ const JORNADAS = [
     ]
   },
   {
-    nombre: "Jornada 2", fecha: "2026-08-22", partidos: [
-      { l: "athletic", v: "sevilla", h: "sáb 17:00", pub: [64, 28, 8], cuo: { c1: 1.73, cX: 3.75, c2: 5.25 } },
-      { l: "valencia", v: "celta", h: "sáb 19:30", pub: [35, 37, 28], cuo: { c1: 2.36, cX: 3.35, c2: 3.25 } },
-      { l: "espanyol", v: "rmadrid", h: "sáb 21:30", pub: [3, 6, 91], cuo: { c1: 8.00, cX: 4.70, c2: 1.47 } },
-      { l: "getafe", v: "racing", h: "dom 19:30", pub: [51, 33, 16], cuo: { c1: 2.20, cX: 3.00, c2: 4.20 } },
-      { l: "elche", v: "barcelona", h: "dom 21:30", pub: [1, 5, 94], cuo: { c1: 9.50, cX: 5.90, c2: 1.35 } },
-      { l: "osasuna", v: "levante", h: "lun 19:30", pub: [67, 26, 7], cuo: { c1: 1.85, cX: 3.70, c2: 4.54 } },
-      { l: "malaga", v: "deportivo", h: "lun 21:30", pub: [40, 34, 26], cuo: { c1: 2.66, cX: 3.10, c2: 3.05 } },
-      { l: "oviedo", v: "leganes", h: "sáb 17:00", pub: [67, 21, 12], cuo: { c1: 1.95, cX: 3.40, c2: 4.75 } },
-      { l: "ceuta", v: "laspalmas", h: "sáb 19:00", pub: [15, 29, 56], cuo: { c1: 3.20, cX: 3.35, c2: 2.40 } },
-      { l: "eldense", v: "cadiz", h: "sáb 21:30", pub: [21, 36, 43], cuo: { c1: 2.36, cX: 3.35, c2: 3.40 } },
-      { l: "eibar", v: "valladolid", h: "dom 17:00", pub: [52, 34, 14], cuo: { c1: 2.25, cX: 3.10, c2: 3.75 } },
-      { l: "castellon", v: "sabadell", h: "dom 19:00", pub: [69, 24, 7], cuo: { c1: 1.57, cX: 4.30, c2: 6.00 } },
-      { l: "sporting", v: "burgos", h: "dom 19:00", pub: [48, 29, 23], cuo: { c1: 2.45, cX: 3.20, c2: 3.20 } },
-      { l: "tenerife", v: "almeria", h: "dom 21:30", pub: [35, 31, 34], cuo: { c1: 3.25, cX: 3.30, c2: 2.30 } },
-      { l: "atmadrid", v: "villarreal", h: "dom 17:00", cuo: { c1: 1.91, cX: 3.75, c2: 4.10 } }
+    nombre: "Jornada 2", fecha: "2026-08-22", parte: true, partidos: [
+      {
+        l: "athletic", v: "sevilla", h: "sáb 17:00", pub: [64, 28, 8], cuo: { c1: 1.73, cX: 3.75, c2: 5.25 },
+        L: { amb: 0, mot: 1, bajas: [["Dani Vivian", "lesion", 4], ["Oihan Sancet", "duda", 4]] },
+        V: { amb: 0, mot: 1, bajas: [["Kike Salas", "sancion", 3], ["Alfon González", "lesion", 3], ["Marcao", "duda", 3]] }
+      },
+      {
+        l: "valencia", v: "celta", h: "sáb 19:30", pub: [35, 37, 28], cuo: { c1: 2.36, cX: 3.35, c2: 3.25 },
+        L: { amb: 0, mot: 1, bajas: [["Diego López", "lesion", 4], ["José Copete", "lesion", 3], ["Dimitri Foulquier", "lesion", 3], ["Sergi Canós", "lesion", 2], ["Luis Rioja", "duda", 3]] },
+        V: { amb: 0, mot: 1, bajas: [["Borja Iglesias", "duda", 4], ["Pablo Durán", "duda", 3], ["Javi Galán", "duda", 3]] }
+      },
+      {
+        l: "espanyol", v: "rmadrid", h: "sáb 21:30", pub: [3, 6, 91], cuo: { c1: 8.00, cX: 4.70, c2: 1.47 },
+        L: { amb: 1, mot: 2, bajas: [["Javi Puado", "lesion", 5], ["Kike García", "lesion", 3], ["Leandro Cabrera", "sancion", 3]] },
+        V: { amb: 0, mot: 1, bajas: [["Éder Militão", "lesion", 4], ["Rodrygo", "lesion", 4], ["Ferland Mendy", "lesion", 3], ["Raúl Asencio", "lesion", 3], ["Thiago Pitarch", "lesion", 1], ["Eduardo Camavinga", "duda", 4]] }
+      },
+      {
+        l: "getafe", v: "racing", h: "dom 19:30", pub: [51, 33, 16], cuo: { c1: 2.20, cX: 3.00, c2: 4.20 },
+        L: { amb: -1, mot: 1, bajas: [["Christantus Uche", "lesion", 4], ["Kiko Femenía", "sancion", 3], ["Juanmi Jiménez", "lesion", 2], ["Borja Mayoral", "duda", 4]] },
+        V: { amb: 1, mot: 2, bajas: [["Pedro Felipe", "lesion", 3], ["Íñigo Vicente", "duda", 5]] }
+      },
+      {
+        l: "elche", v: "barcelona", h: "dom 21:30", pub: [1, 5, 94], cuo: { c1: 9.50, cX: 5.90, c2: 1.35 },
+        L: { amb: 0, mot: 1, bajas: [["Diangana", "lesion", 3], ["Yago Santiago", "lesion", 2]] },
+        V: { amb: 0, mot: 1, bajas: [["Frenkie de Jong", "lesion", 4]] }
+      },
+      {
+        l: "osasuna", v: "levante", h: "lun 19:30", pub: [67, 26, 7], cuo: { c1: 1.85, cX: 3.70, c2: 4.54 },
+        L: { amb: 0, mot: 1, bajas: [["Valentín Rosier", "lesion", 3]] },
+        V: { amb: -1, mot: 1, bajas: [["Álex Primo", "duda", 1]] }
+      },
+      {
+        l: "malaga", v: "deportivo", h: "lun 21:30", pub: [40, 34, 26], cuo: { c1: 2.66, cX: 3.10, c2: 3.05 },
+        L: { amb: -1, mot: 1, bajas: [["Fernando Calero", "lesion", 4], ["Diego Murillo", "lesion", 3], ["Adrián Niño", "lesion", 3], ["Aarón Ochoa", "lesion", 2], ["Moussa Diarra", "duda", 3]] },
+        V: { amb: 0, mot: 1, bajas: [["Noé Carrillo", "lesion", 2]] }
+      },
+      {
+        l: "oviedo", v: "leganes", h: "sáb 17:00", pub: [67, 21, 12], cuo: { c1: 1.95, cX: 3.40, c2: 4.75 },
+        L: { amb: 0, mot: 2, bajas: [["Ilyas Chaira", "lesion", 4], ["Brandon Dominguès", "lesion", 3]] },
+        V: { amb: 0, mot: 1, bajas: [["Enric Franquesa", "lesion", 3], ["Marcos Leiva", "lesion", 2]] }
+      },
+      {
+        l: "ceuta", v: "laspalmas", h: "sáb 19:00", pub: [15, 29, 56], cuo: { c1: 3.20, cX: 3.35, c2: 2.40 },
+        L: { amb: -1, mot: 2, bajas: [] },
+        V: { amb: 0, mot: 1, bajas: [["Sandro Ramírez", "lesion", 3], ["Enzo Loiodice", "lesion", 3], ["Enrique Clemente", "lesion", 3], ["Recoba", "lesion", 3], ["Viti", "lesion", 3], ["Ale García", "lesion", 2]] }
+      },
+      {
+        l: "eldense", v: "cadiz", h: "sáb 21:30", pub: [21, 36, 43], cuo: { c1: 2.36, cX: 3.35, c2: 3.40 },
+        L: { amb: -1, mot: 1, bajas: [] },
+        V: { amb: 0, mot: 1, bajas: [] }
+      },
+      {
+        l: "eibar", v: "valladolid", h: "dom 17:00", pub: [52, 34, 14], cuo: { c1: 2.25, cX: 3.10, c2: 3.75 },
+        L: { amb: -1, mot: 2, bajas: [] },
+        V: { amb: -1, mot: 2, bajas: [] }
+      },
+      {
+        l: "castellon", v: "sabadell", h: "dom 19:00", pub: [69, 24, 7], cuo: { c1: 1.57, cX: 4.30, c2: 6.00 },
+        L: { amb: 0, mot: 1, bajas: [["Fabrizio Brignani", "lesion", 3], ["Ilias Kostis", "lesion", 3]] },
+        V: { amb: 1, mot: 2, bajas: [] }
+      },
+      {
+        l: "sporting", v: "burgos", h: "dom 19:00", pub: [48, 29, 23], cuo: { c1: 2.45, cX: 3.20, c2: 3.20 },
+        L: { amb: 0, mot: 1, bajas: [["Loum", "lesion", 3], ["Ferrari", "lesion", 3], ["Jorge Sáenz", "lesion", 3], ["Hugo Guillamón", "duda", 4]] },
+        V: { amb: 1, mot: 1, bajas: [["Álex Lizancos", "lesion", 3], ["Oier Luengo", "lesion", 2]] }
+      },
+      {
+        l: "tenerife", v: "almeria", h: "dom 21:30", pub: [35, 31, 34], cuo: { c1: 3.25, cX: 3.30, c2: 2.30 },
+        L: { amb: 1, mot: 2, bajas: [] },
+        V: { amb: 1, mot: 2, bajas: [] }
+      },
+      {
+        l: "atmadrid", v: "villarreal", h: "dom 17:00", cuo: { c1: 1.91, cX: 3.75, c2: 4.10 },
+        L: { amb: 1, mot: 1, bajas: [["Alexander Sørloth", "duda", 4]] },
+        V: { amb: 0, mot: 1, bajas: [["Logan Costa", "lesion", 3], ["Alassane Diatta", "sancion", 1]] }
+      }
     ]
   }
 ];
@@ -307,7 +367,7 @@ const RESULTADOS = [
   { jor: 1, l: "sevilla", v: "rayo", gl: 2, gv: 1 },
   { jor: 1, l: "racing", v: "villarreal", gl: 2, gv: 2 },
   { jor: 1, l: "espanyol", v: "levante", gl: 3, gv: 0 },
-  { jor: 1, l: "celta", v: "osasuna", gl: 0, gv: 0 },
+  // Celta-Osasuna se aplazó al 27 de agosto por el estado del césped de Balaídos.
   { jor: 1, l: "deportivo", v: "elche", gl: 1, gv: 1 },
   { jor: 1, l: "atmadrid", v: "malaga", gl: 2, gv: 0 },
   // Segunda, jornada 1
@@ -331,7 +391,16 @@ const H2H_HISTORICO = [
   { l: "espanyol", v: "rmadrid", n: 89, g1: 33, gx: 19, g2: 37, nota: "en campo del Espanyol, todas las épocas" },
   { l: "valencia", v: "celta", n: 60, g1: 41, gx: 13, g2: 6, nota: "en Mestalla, en Liga" },
   { l: "osasuna", v: "levante", n: 11, g1: 7, gx: 1, g2: 3, nota: "visitas del Levante a El Sadar" },
-  { l: "atmadrid", v: "villarreal", n: 24, g1: 12, gx: 7, g2: 5, nota: "en el Metropolitano, todas las competiciones" }
+  { l: "atmadrid", v: "villarreal", n: 24, g1: 12, gx: 7, g2: 5, nota: "en el Metropolitano, todas las competiciones" },
+  { l: "getafe", v: "racing", n: 9, g1: 4, gx: 3, g2: 2, nota: "en el Coliseum, todas las competiciones" },
+  { l: "elche", v: "barcelona", n: 25, g1: 8, gx: 5, g2: 12, nota: "en Liga, en campo del Elche (Altabix y Martínez Valero)" },
+  { l: "malaga", v: "deportivo", n: 21, g1: 8, gx: 10, g2: 3, nota: "en La Rosaleda, todas las competiciones" },
+  { l: "oviedo", v: "leganes", n: 9, g1: 5, gx: 3, g2: 1, nota: "en el Carlos Tartiere, partidos oficiales desde 2009" },
+  { l: "ceuta", v: "laspalmas", n: 1, g1: 0, gx: 1, g2: 0, nota: "único precedente en el Murube, diciembre de 2025" },
+  { l: "eldense", v: "cadiz", n: 6, g1: 4, gx: 1, g2: 1, nota: "en el Pepico Amat, en Segunda, desde 1956" },
+  { l: "eibar", v: "valladolid", n: 6, g1: 3, gx: 0, g2: 3, nota: "en Ipurua, solo los duelos de Segunda División" },
+  { l: "sporting", v: "burgos", n: 20, g1: 13, gx: 5, g2: 2, nota: "en El Molinón, todas las competiciones" },
+  { l: "tenerife", v: "almeria", n: 17, g1: 6, gx: 6, g2: 5, nota: "en el Heliodoro, todas las competiciones desde 1958" }
 ];
 
 // Escrutinio oficial de cada jornada: lo que se recaudó, lo que se pagó y el bote que arrastra.
