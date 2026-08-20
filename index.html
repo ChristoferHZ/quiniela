@@ -163,7 +163,7 @@ table.datos tr:hover td{background:var(--panel2)}
 .ult{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .ult .p{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:52px;border-radius:5px;padding:4px 6px;font-family:var(--f-num);font-size:12px;font-weight:700;color:#fff;line-height:1.15}
 .ult .p small{font-size:9px;font-weight:600;opacity:.9;letter-spacing:.02em;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ult .p.g{background:var(--s1)} .ult .p.e{background:var(--sx)} .ult .p.p{background:var(--warn)}
+.ult .p.g{background:var(--s1)} .ult .p.e{background:var(--s2)} .ult .p.p{background:var(--warn)}
 .ult .nada{color:var(--muted);font-size:12.5px}
 tr.equipo{cursor:pointer}
 tr.equipo:hover td{background:var(--panel3)}
@@ -452,7 +452,7 @@ JOR.forEach(j => j.partidos.forEach(p => {
   if (r) p.real = { gl: r.gl, gv: r.gv };
 }));
 
-const ui = { jornada: JOR.length ? JOR[JOR.length - 1].id : "", abierto: null, sims: 10000, presupuesto: 8, pestana: "boleto", div: 1, equipo: null };
+const ui = { jornada: JOR.length ? JOR[JOR.length - 1].id : "", abierto: null, sims: 10000, presupuesto: 8, pestana: "boleto", div: 1, equipo: null, modo: 1 };
 const jornada = () => JOR.find(j => j.id === ui.jornada) || JOR[JOR.length - 1];
 const partidos = () => (jornada() ? jornada().partidos : []);
 const getPartido = id => { for (const j of JOR) { const p = j.partidos.find(x => x.id === id); if (p) return p; } return null; };
@@ -656,6 +656,13 @@ function sortear(ac) {
 }
 const signoDe = (i, j) => i > j ? 0 : i === j ? 1 : 2;
 
+const UMBRAL_X = 0.45;
+function signoElegido(c, modo) {
+  const sg = c.orden[0];
+  const m = modo || ui.modo;
+  return (m === 2 && sg !== 1 && c.p[sg] < UMBRAL_X) ? 1 : sg;
+}
+
 // Pleno al 15: los goles de cada equipo se marcan como 0, 1, 2 o M (tres o más)
 const catGol = g => g >= 3 ? "M" : String(g);
 const plenoDe = r => catGol(r.gl) + "-" + catGol(r.gv);
@@ -693,7 +700,7 @@ function construirBoleto(ps, maxCols) {
 function simular(N) {
   const ps = partidos().slice(0, 14).map(calc);
   if (!ps.length) return null;
-  const simple = ps.map(c => c.orden[0]);
+  const simple = ps.map(c => signoElegido(c));
   const bol = construirBoleto(ps, Math.max(1, Math.round(ui.presupuesto)));
   const nP = ps.length;
   const histS = new Array(nP + 1).fill(0), histM = new Array(nP + 1).fill(0);
@@ -707,7 +714,7 @@ function simular(N) {
     }
     histS[a]++; histM[b]++;
   }
-  return { N, nP, histS, histM, bol, probSimple: ps.reduce((s, c) => s * c.p[c.orden[0]], 1), esperado: ps.reduce((s, c) => s + c.p[c.orden[0]], 0) };
+  return { N, nP, histS, histM, bol, probSimple: ps.reduce((s, c) => s * c.p[signoElegido(c)], 1), esperado: ps.reduce((s, c) => s + c.p[signoElegido(c)], 0) };
 }
 function simularPartido(p, N) {
   const c = calc(p), cont = [0, 0, 0], marc = new Map();
@@ -771,13 +778,13 @@ function vPanel() {
 function vResumen() {
   const ps = partidos().slice(0, 14).map(calc);
   if (!ps.length) return "";
-  const conf = ps.reduce((s, c) => s + c.p[c.orden[0]], 0) / ps.length;
-  const p14 = ps.reduce((s, c) => s * c.p[c.orden[0]], 1);
+  const conf = ps.reduce((s, c) => s + c.p[signoElegido(c)], 0) / ps.length;
+  const p14 = ps.reduce((s, c) => s * c.p[signoElegido(c)], 1);
   const dudosos = ps.filter(c => c.p[c.orden[0]] < 0.45).length;
   const sobre = ps.filter(c => c.sobre && c.sobre[c.orden[0]] > 0.12).length;
   const celda = (v, t) => '<div class="celda"><b>' + v + "</b><small>" + t + "</small></div>";
   return '<div class="tarjeta"><div class="res">' +
-    celda(ps.reduce((s, c) => s + c.p[c.orden[0]], 0).toFixed(1), "Aciertos de los 14 signos") +
+    celda(ps.reduce((s, c) => s + c.p[signoElegido(c)], 0).toFixed(1), "Aciertos de los 14 signos") +
     celda(pct0(conf) + "%", "Confianza media") +
     celda("1 / " + Math.round(1 / p14).toLocaleString("es-ES"), "Clavar los 14 a columna simple") +
     celda(dudosos, "Partidos abiertos") +
@@ -791,8 +798,9 @@ function vBoleto() {
   const j = jornada();
   const ops = JOR.map(x => '<option value="' + x.id + '"' + (x.id === ui.jornada ? " selected" : "") + ">" + esc(x.nombre) + "</option>").join("");
   const filas = ps.map((p, i) => {
-    const c = calc(p), sg = c.orden[0], pleno = i === 14, d = divDe(p.l);
+    const c = calc(p), sg = signoElegido(c), pleno = i === 14, d = divDe(p.l);
     const marcas = [];
+    if (sg !== c.orden[0]) marcas.push('<span class="chip valor">era ' + SIGNOS[c.orden[0]] + "</span>");
     if (c.sobre && c.sobre[sg] > 0.12) marcas.push('<span class="chip riesgo">sobrejugado</span>');
     if (c.sobre) {
       const inf = c.orden.find(k => c.sobre[k] < -0.10);
@@ -829,6 +837,12 @@ function vBoleto() {
     '<div style="display:flex;gap:12px;align-items:flex-end">' +
     (BOTE_ACTUAL > 0 && ui.jornada === JOR[JOR.length - 1].id ? '<span class="chip valor">bote de ' + EUR0(BOTE_ACTUAL) + "</span>" : "") +
     '<label class="campo">Ver jornada<select data-a="jornada">' + ops + "</select></label></div></div>" +
+    '<div class="leyenda"><div class="pestanas">' +
+    '<button data-a="modo" data-m="1" class="' + (ui.modo === 1 ? "on" : "") + '">Pronóstico 1</button>' +
+    '<button data-a="modo" data-m="2" class="' + (ui.modo === 2 ? "on" : "") + '">Pronóstico 2</button>' +
+    "</div><span>" + (ui.modo === 2 ?
+      "Los 1 y 2 que no llegan al 45% se cambian por X: en los partidos abiertos, el empate es lo que menos se pierde." :
+      "Se marca siempre el resultado más probable.") + "</span></div>" +
     '<div class="leyenda"><span><i style="background:var(--s1)"></i>Gana el local (1)</span>' +
     '<span><i style="background:var(--sx)"></i>Empate (X)</span>' +
     '<span><i style="background:var(--s2)"></i>Gana el visitante (2)</span>' +
@@ -1122,10 +1136,11 @@ function vAcierto() {
   const filas = JOR.map(j => {
     const ps = j.partidos.slice(0, 14).filter(p => p.real);
     if (!ps.length) return null;
-    let ac = 0, brier = 0;
+    let ac1 = 0, ac2 = 0, brier = 0;
     ps.forEach(p => {
       const c = calc(p), rs = signoDe(p.real.gl, p.real.gv);
-      if (c.orden[0] === rs) ac++;
+      if (signoElegido(c, 1) === rs) ac1++;
+      if (signoElegido(c, 2) === rs) ac2++;
       brier += c.p.reduce((s, x, i) => s + Math.pow(x - (i === rs ? 1 : 0), 2), 0);
     });
     // el pleno se juzga aparte: hay que clavar el resultado exacto en 0/1/2/M
@@ -1135,22 +1150,23 @@ function vAcierto() {
       const marcado = plenoOpciones(calc(p15))[0].k;
       pleno = { marcado, real: plenoDe(p15.real), bien: marcado === plenoDe(p15.real) };
     }
-    return { j, n: ps.length, ac, brier: brier / ps.length, pleno };
+    return { j, n: ps.length, ac1, ac2, brier: brier / ps.length, pleno };
   }).filter(Boolean);
   if (!filas.length) return '<section class="tarjeta"><div class="cuerpo"><div class="nota">Todavía no hay jornadas con todos los resultados. En cuanto se juegue una, aquí aparecerá cuántos signos habría acertado el modelo.</div></div></section>';
-  const tot = filas.reduce((a, f) => ({ ac: a.ac + f.ac, n: a.n + f.n }), { ac: 0, n: 0 });
+  const tot = filas.reduce((a, f) => ({ ac1: a.ac1 + f.ac1, ac2: a.ac2 + f.ac2, n: a.n + f.n }), { ac1: 0, ac2: 0, n: 0 });
   const totPleno = filas.reduce((a, f) => f.pleno ? { ac: a.ac + (f.pleno.bien ? 1 : 0), n: a.n + 1 } : a, { ac: 0, n: 0 });
+  const celdaAc = (ac, n, mejor) => (mejor ? "<b>" : "") + ac + " de " + n + " - " + Math.round(ac / n * 100) + "%" + (mejor ? "</b>" : "");
   return '<section class="tarjeta"><div class="cabtar"><h2 class="tit">Acierto del modelo</h2>' +
     '<span class="eyebrow">jornadas ya jugadas</span></div><div class="cuerpo">' +
-    '<div class="aviso" style="margin-bottom:12px">Un boleto son <b>15 partidos: los 14 primeros se juegan a signo</b> (1, X o 2) <b>y el decimoquinto es el pleno</b>, que exige clavar el resultado exacto. Por eso van en columnas separadas: no se aciertan de la misma manera.<br><br>Estos números se calculan <b>con los datos de hoy</b>, no son una predicción hecha a ciegas antes del partido: sirven para ver si el modelo va fino, no como historial de apuestas. El <b>Brier</b> mide lo bien calibradas que están las probabilidades — cuanto más bajo, mejor; 0,67 sería tirar una moneda a tres caras.</div>' +
-    '<div class="envuelve"><table class="datos"><tr><th>Jornada</th><th class="n">Signos acertados</th><th class="n">%</th><th>Pleno al 15</th><th class="n">Brier</th></tr>' +
-    filas.map(f => "<tr><td>" + esc(f.j.nombre) + "</td><td class='n'><b>" + f.ac + "</b> de " + f.n + "</td>" +
-      "<td class='n'>" + Math.round(f.ac / f.n * 100) + "%</td><td>" +
+    '<div class="aviso" style="margin-bottom:12px">Un boleto son <b>15 partidos: los 14 primeros se juegan a signo</b> (1, X o 2) <b>y el decimoquinto es el pleno</b>, que exige clavar el resultado exacto. Por eso van en columnas separadas: no se aciertan de la misma manera.<br><br>Estos números se calculan <b>con los datos de hoy</b>, no son una predicción hecha a ciegas antes del partido: sirven para ver si el modelo va fino, no como historial de apuestas. El <b>Brier</b> mide lo bien calibradas que están las probabilidades — cuanto más bajo, mejor; 0,67 sería tirar una moneda a tres caras.<br><br>Pronóstico 1 marca siempre el resultado más probable. Pronóstico 2 cambia por X todos los 1 y 2 que no llegan al 45%. En negrita, el que habría acertado más esa jornada.</div>' +
+    '<div class="envuelve"><table class="datos"><tr><th>Jornada</th><th class="n">Pronóstico 1</th><th class="n">Pronóstico 2</th><th>Pleno al 15</th><th class="n">Brier</th></tr>' +
+    filas.map(f => "<tr><td>" + esc(f.j.nombre) + "</td><td class='n'>" + celdaAc(f.ac1, f.n, f.ac1 > f.ac2) + "</td>" +
+      "<td class='n'>" + celdaAc(f.ac2, f.n, f.ac2 > f.ac1) + "</td><td>" +
       (f.pleno ? '<span class="chip ' + (f.pleno.bien ? "ok" : "fallo") + '">' + (f.pleno.bien ? "✓" : "✗") + " " + f.pleno.marcado +
         (f.pleno.bien ? "" : " · salió " + f.pleno.real) + "</span>" : "—") +
       "</td><td class='n'>" + f.brier.toFixed(3) + "</td></tr>").join("") +
-    "<tr><td><b>Total</b></td><td class='n'><b>" + tot.ac + "</b> de " + tot.n + "</td><td class='n'>" +
-    Math.round(tot.ac / tot.n * 100) + "%</td><td class='n'><b>" + totPleno.ac + "</b> de " + totPleno.n + "</td><td></td></tr>" +
+    "<tr><td><b>Total</b></td><td class='n'>" + celdaAc(tot.ac1, tot.n, tot.ac1 > tot.ac2) + "</td><td class='n'>" +
+    celdaAc(tot.ac2, tot.n, tot.ac2 > tot.ac1) + "</td><td class='n'><b>" + totPleno.ac + "</b> de " + totPleno.n + "</td><td></td></tr>" +
     "</table></div></div></section>";
 }
 
@@ -1234,6 +1250,7 @@ app.addEventListener("click", e => {
   if (a === "pestana") { ui.pestana = t.dataset.p; ui.abierto = null; ui.equipo = null; render(); }
   else if (a === "div") { ui.div = +t.dataset.d; ui.equipo = null; render(); }
   else if (a === "equipo") { ui.equipo = ui.equipo === t.dataset.id ? null : t.dataset.id; render(); }
+  else if (a === "modo") { ui.modo = +t.dataset.m; render(); }
   else if (a === "abrir") {
     ui.abierto = ui.abierto === t.dataset.pid ? null : t.dataset.pid;
     render();
