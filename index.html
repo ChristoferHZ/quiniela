@@ -677,8 +677,8 @@ function signoElegido(c, modo) {
 const MODOS = [
   { n: 1, nombre: "Pronóstico 1", cols: 1, desc: "Se marca siempre el resultado más probable. Una sola columna." },
   { n: 2, nombre: "Pronóstico 2", cols: 1, desc: "Los <b>1</b> y <b>2</b> que no llegan al 45% se cambian por <b>X</b>: en los partidos abiertos, el empate es lo que menos se pierde." },
-  { n: 3, nombre: "3 · 7 dobles", cols: 128, desc: "Siete dobles repartidos donde el segundo signo más se acerca al favorito. <b>128 columnas</b>." },
-  { n: 4, nombre: "4 · 4 triples", cols: 81, desc: "Cuatro triples en los partidos con el favorito más flojo, los más abiertos de la jornada. <b>81 columnas</b>." }
+  { n: 3, nombre: "3 · 7 dobles", cols: 16, desc: "Siete dobles donde el segundo signo más se acerca al favorito, en <b>reducida de 16 columnas</b> en vez de 128. Si los 14 marcados son correctos, garantiza 13." },
+  { n: 4, nombre: "4 · 4 triples", cols: 9, desc: "Cuatro triples en los partidos más abiertos, en <b>reducida de 9 columnas</b> en vez de 81. Si los 14 marcados son correctos, garantiza 13." }
 ];
 const modoDe = m => MODOS.find(x => x.n === m) || MODOS[0];
 
@@ -698,6 +698,62 @@ function columna(cs, modo) {
   return sel;
 }
 const costeCols = sel => sel.reduce((a, s) => a * s.length, 1);
+
+/* REDUCIDAS. En vez de jugar todas las combinaciones, se juega un subconjunto elegido
+   de forma que cualquier resultado quede a un solo fallo de alguna columna jugada.
+   Se renuncia a un acierto y el coste se hunde. No es un apano: son codigos perfectos.
+   7 dobles -> codigo de Hamming [7,4]: 16 columnas de las 128, radio de cobertura 1.
+   4 triples -> Hamming ternario [4,2]: 9 columnas de las 81, radio 1.
+   En ambos, si los 14 signos marcados contienen el resultado, se garantizan 13. */
+function patronesDobles() {
+  const out = [];
+  for (let d = 0; d < 16; d++) {
+    const d1 = (d >> 3) & 1, d2 = (d >> 2) & 1, d3 = (d >> 1) & 1, d4 = d & 1;
+    out.push([d1 ^ d2 ^ d4, d1 ^ d3 ^ d4, d1, d2 ^ d3 ^ d4, d2, d3, d4]);
+  }
+  return out;
+}
+function patronesTriples() {
+  const out = [];
+  for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) out.push([a, b, (a + b) % 3, (a + 2 * b) % 3]);
+  return out;
+}
+// Devuelve los signos marcados por partido y la lista de columnas que se juegan de verdad
+function sistema(cs, modo) {
+  const m = modo || ui.modo;
+  const sel = columna(cs, m);
+  const multi = [];
+  sel.forEach((s, i) => { if (s.length > 1) multi.push(i); });
+  let pats = [[]];
+  if (m === 3 && multi.length === 7) pats = patronesDobles();
+  else if (m === 4 && multi.length === 4) pats = patronesTriples();
+  else if (multi.length) {
+    pats = [[]];
+    multi.forEach(i => {
+      const nuevo = [];
+      pats.forEach(pt => { for (let v = 0; v < sel[i].length; v++) nuevo.push(pt.concat(v)); });
+      pats = nuevo;
+    });
+  }
+  const columnas = pats.map(pt => sel.map((s, i) => {
+    const k = multi.indexOf(i);
+    return k < 0 ? s[0] : s[pt[k]];
+  }));
+  return { sel, columnas, multi };
+}
+// Probabilidad de que alguna de las columnas jugadas clave los 14
+const probPleno = (cs, sis) => sis.columnas.reduce((t, col) =>
+  t + col.reduce((pr, k, i) => pr * cs[i].p[k], 1), 0);
+// Aciertos reales: los de la mejor columna jugada
+function aciertosSistema(sis, reales) {
+  let mejor = 0;
+  sis.columnas.forEach(col => {
+    let a = 0;
+    reales.forEach((rs, i) => { if (rs != null && col[i] === rs) a++; });
+    if (a > mejor) mejor = a;
+  });
+  return mejor;
+}
 
 // Pleno al 15: los goles de cada equipo se marcan como 0, 1, 2 o M (tres o más)
 const catGol = g => g >= 3 ? "M" : String(g);
@@ -736,24 +792,27 @@ function construirBoleto(ps, maxCols) {
 function simular(N) {
   const ps = partidos().slice(0, 14).map(calc);
   if (!ps.length) return null;
-  const simple = columna(ps, ui.modo);
+  const sis = sistema(ps, ui.modo);
   const bol = construirBoleto(ps, Math.max(1, Math.round(ui.presupuesto)));
   const nP = ps.length;
   const histS = new Array(nP + 1).fill(0), histM = new Array(nP + 1).fill(0);
+  const salida = new Array(nP);
   for (let s = 0; s < N; s++) {
-    let a = 0, b = 0;
+    let b = 0;
     for (let i = 0; i < nP; i++) {
       const p = ps[i].p, r = Math.random();
       const sg = r < p[0] ? 0 : r < p[0] + p[1] ? 1 : 2;
-      if (simple[i].indexOf(sg) >= 0) a++;
+      salida[i] = sg;
       if (bol.sel[i].indexOf(sg) >= 0) b++;
     }
-    histS[a]++; histM[b]++;
+    // en una reducida cuenta la mejor de las columnas que se juegan
+    histS[aciertosSistema(sis, salida)]++;
+    histM[b]++;
   }
-  const pS = simple.map((mk, i) => mk.reduce((s, k) => s + ps[i].p[k], 0));
+  const pS = sis.sel.map((mk, i) => mk.reduce((s, k) => s + ps[i].p[k], 0));
   return {
-    N, nP, histS, histM, bol, colsSimple: costeCols(simple),
-    probSimple: pS.reduce((a, b) => a * b, 1),
+    N, nP, histS, histM, bol, colsSimple: sis.columnas.length,
+    probSimple: probPleno(ps, sis),
     esperado: pS.reduce((a, b) => a + b, 0)
   };
 }
@@ -819,16 +878,16 @@ function vPanel() {
 function vResumen() {
   const ps = partidos().slice(0, 14).map(calc);
   if (!ps.length) return "";
-  const col = columna(ps, ui.modo);
-  const cols = costeCols(col);
-  const pMarc = col.map((mk, i) => mk.reduce((s, k) => s + ps[i].p[k], 0));
+  const sis = sistema(ps, ui.modo);
+  const cols = sis.columnas.length;
+  const pMarc = sis.sel.map((mk, i) => mk.reduce((s, k) => s + ps[i].p[k], 0));
   const esperados = pMarc.reduce((a, b) => a + b, 0);
-  const p14 = pMarc.reduce((a, b) => a * b, 1);
+  const p14 = probPleno(ps, sis);
   const celda = (v, t) => '<div class="celda"><b>' + v + "</b><small>" + t + "</small></div>";
   return '<div class="tarjeta"><div class="res">' +
-    celda(esperados.toFixed(1), "Aciertos esperados") +
+    celda(esperados.toFixed(1), "Aciertos de los 14 marcados") +
     celda(pct0(esperados / ps.length) + "%", "Confianza media") +
-    celda("1 / " + Math.round(1 / p14).toLocaleString("es-ES"), "Clavar los 14 con este sistema") +
+    celda("1 / " + Math.round(1 / Math.max(p14, 1e-12)).toLocaleString("es-ES"), "Clavar los 14 con este sistema") +
     celda(cols.toLocaleString("es-ES"), "Columnas a jugar") +
     celda(EUR(cols * AJ.precioColumna), "Lo que cuesta") +
     celda(pct0(PESO_DATOS) + "%", "Peso de datos reales") +
@@ -840,8 +899,9 @@ function vBoleto() {
   const j = jornada();
   const ops = JOR.map(x => '<option value="' + x.id + '"' + (x.id === ui.jornada ? " selected" : "") + ">" + esc(x.nombre) + "</option>").join("");
   const cs14 = ps.slice(0, 14).map(calc);
-  const col = columna(cs14, ui.modo);
-  const cols = costeCols(col);
+  const sis = sistema(cs14, ui.modo);
+  const col = sis.sel;
+  const cols = sis.columnas.length;
   const filas = ps.map((p, i) => {
     const c = calc(p), pleno = i === 14, d = divDe(p.l);
     // el pleno se marca siempre a un solo resultado; los dobles y triples son de los 14
@@ -1199,13 +1259,12 @@ function vAcierto() {
     if (!n) return null;
     // los dobles y triples se deciden mirando los 14 de la jornada, no partido a partido
     const cs14 = j.partidos.slice(0, 14).map(calc);
-    const cols = MODOS.map(m => ({ m, sel: columna(cs14, m.n) }));
-    const ac = cols.map(() => 0);
+    const reales = j.partidos.slice(0, 14).map(p => p.real ? signoDe(p.real.gl, p.real.gv) : null);
+    const ac = MODOS.map(m => aciertosSistema(sistema(cs14, m.n), reales));
     let brier = 0;
     j.partidos.slice(0, 14).forEach((p, i) => {
       if (!p.real) return;
-      const rs = signoDe(p.real.gl, p.real.gv);
-      cols.forEach((x, k) => { if (x.sel[i].indexOf(rs) >= 0) ac[k]++; });
+      const rs = reales[i];
       brier += calc(p).p.reduce((s, x, q) => s + Math.pow(x - (q === rs ? 1 : 0), 2), 0);
     });
     // el pleno se juzga aparte: hay que clavar el resultado exacto en 0/1/2/M
@@ -1225,7 +1284,7 @@ function vAcierto() {
     m.cols.toLocaleString("es-ES") + " col · " + EUR(m.cols * AJ.precioColumna) + "</span></th>").join("");
   return '<section class="tarjeta"><div class="cabtar"><h2 class="tit">Acierto del modelo</h2>' +
     '<span class="eyebrow">jornadas ya jugadas</span></div><div class="cuerpo">' +
-    '<div class="aviso" style="margin-bottom:12px">Un boleto son <b>15 partidos: los 14 primeros se juegan a signo</b> (1, X o 2) <b>y el decimoquinto es el pleno</b>, que exige clavar el resultado exacto. Por eso van en columnas separadas: no se aciertan de la misma manera.<br><br>Estos números se calculan <b>con los datos de hoy</b>, no son una predicción hecha a ciegas antes del partido: sirven para ver si el modelo va fino, no como historial de apuestas. El <b>Brier</b> mide lo bien calibradas que están las probabilidades — cuanto más bajo, mejor; 0,67 sería tirar una moneda a tres caras.<br><br>Los cuatro sistemas salen del mismo modelo, cambia solo cómo se rellena el boleto. Con dobles y triples un partido cuenta como acertado si el resultado está entre los signos marcados, así que <b>acertar más no significa ganar más</b>: 128 columnas cuestan 96 € y una sola cuesta 0,75 €. Mira siempre las dos cifras juntas. En negrita, el que más acertó esa jornada.</div>' +
+    '<div class="aviso" style="margin-bottom:12px">Un boleto son <b>15 partidos: los 14 primeros se juegan a signo</b> (1, X o 2) <b>y el decimoquinto es el pleno</b>, que exige clavar el resultado exacto. Por eso van en columnas separadas: no se aciertan de la misma manera.<br><br>Estos números se calculan <b>con los datos de hoy</b>, no son una predicción hecha a ciegas antes del partido: sirven para ver si el modelo va fino, no como historial de apuestas. El <b>Brier</b> mide lo bien calibradas que están las probabilidades — cuanto más bajo, mejor; 0,67 sería tirar una moneda a tres caras.<br><br>Los cuatro sistemas salen del mismo modelo, cambia solo cómo se rellena el boleto. Los dos últimos son <b>reducidas</b>: no juegan todas las combinaciones, sino un subconjunto que deja cualquier resultado a un solo fallo de alguna columna. Se renuncia a un acierto y el coste se hunde — 16 columnas en vez de 128, 9 en vez de 81. Aquí se cuentan los aciertos de la <b>mejor columna jugada</b>. Mira siempre el acierto junto al coste. En negrita, el que más acertó esa jornada.</div>' +
     '<div class="envuelve"><table class="datos"><tr><th>Jornada</th>' + cabecera + '<th>Pleno al 15</th><th class="n">Brier</th></tr>' +
     filas.map(f => {
       const mx = Math.max.apply(null, f.ac);
