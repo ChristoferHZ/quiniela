@@ -944,9 +944,11 @@ function vResumen() {
     return { ac: a.ac + aciertosSistema(s, rs), n: a.n + n, j: a.j + 1 };
   }, { ac: 0, n: 0, j: 0 });
   return '<div class="tarjeta"><div class="res">' +
-    (acum.n ? celda(acum.ac + " de " + acum.n,
-      "Acumulado · " + acum.j + (acum.j === 1 ? " jornada" : " jornadas")) : "") +
-    (jugados ? celda(llevamos + " de " + jugados, "Aciertos en esta jornada") : "") +
+    // los dos contadores se ven SIEMPRE, aunque esten a cero: van subiendo
+    // conforme se juega cada partido
+    celda(acum.ac + " de " + acum.n,
+      "Acumulado · " + acum.j + (acum.j === 1 ? " jornada" : " jornadas")) +
+    celda(llevamos + " de " + jugados + " jugados", "Aciertos en esta jornada") +
     celda(esperados.toFixed(1), "Aciertos de los 14 marcados") +
     celda(pct0(esperados / ps.length) + "%", "Confianza media") +
     celda("1 / " + Math.round(1 / Math.max(p14, 1e-12)).toLocaleString("es-ES"), "Clavar los 14 con este sistema") +
