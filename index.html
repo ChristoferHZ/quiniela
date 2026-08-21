@@ -639,7 +639,7 @@ function calc(p) {
   const ent = -fin.reduce((s, x) => s + (x > 0 ? x * Math.log(x) : 0), 0) / Math.log(3);
   const pub = probsPublico(p.pub);
   const r = Object.assign({}, L, {
-    M, pm, mk, pub, p: fin, orden, marc, ent,
+    M, pm, mk, pub, p: fin, orden, marc, ent, apl: p.apl || null,
     valor: mk ? fin[orden[0]] - mk.p[orden[0]] : 0,
     sobre: pub ? fin.map((x, i) => pub[i] - x) : null,
     acum: acumular(M)
@@ -691,11 +691,13 @@ function columna(cs, modo) {
      oficial dice que los signos de la tabla se sustituyen por la pareja del bloque
      de pronosticos "y en el mismo orden". */
   if (m === 3) {
-    cs.map((c, i) => ({ i, v: c.p[c.orden[1]] / Math.max(c.p[c.orden[0]], 1e-9) }))
+    cs.map((c, i) => ({ i, v: c.p[c.orden[1]] / Math.max(c.p[c.orden[0]], 1e-9), apl: c.apl }))
+      .filter(x => !x.apl)   // un doble en un partido aplazado es una columna tirada
       .sort((a, b) => b.v - a.v).slice(0, 7)
       .forEach(x => { sel[x.i] = [cs[x.i].orden[0], cs[x.i].orden[1]].sort((a, b) => a - b); });
   } else if (m === 4) {
-    cs.map((c, i) => ({ i, v: c.p[c.orden[0]] }))
+    cs.map((c, i) => ({ i, v: c.p[c.orden[0]], apl: c.apl }))
+      .filter(x => !x.apl)
       .sort((a, b) => a.v - b.v).slice(0, 4)
       .forEach(x => { sel[x.i] = [0, 1, 2]; });
   }
@@ -745,10 +747,16 @@ function sistema(cs, modo) {
       pats = nuevo;
     });
   }
-  const columnas = pats.map(pt => sel.map((s, i) => {
-    const k = multi.indexOf(i);
-    return k < 0 ? s[0] : s[pt[k]];
-  }));
+  // si por lo que sea salieran columnas repetidas, no se sellan dos veces
+  const vistas = new Set(), columnas = [];
+  pats.forEach(pt => {
+    const col = sel.map((s, i) => {
+      const k = multi.indexOf(i);
+      return k < 0 ? s[0] : s[pt[k] == null ? 0 : pt[k]];
+    });
+    const clave = col.join("");
+    if (!vistas.has(clave)) { vistas.add(clave); columnas.push(col); }
+  });
   return { sel, columnas, multi };
 }
 // Probabilidad de que alguna de las columnas jugadas clave los 14
@@ -921,7 +929,12 @@ function vResumen() {
   const esperados = pMarc.reduce((a, b) => a + b, 0);
   const p14 = probPleno(ps, sis);
   const celda = (v, t) => '<div class="celda"><b>' + v + "</b><small>" + t + "</small></div>";
+  // marcador en vivo de la jornada: cuantos llevamos acertados de los ya jugados
+  const reales = partidos().slice(0, 14).map(p => p.real ? signoDe(p.real.gl, p.real.gv) : null);
+  const jugados = reales.filter(r => r != null).length;
+  const llevamos = jugados ? aciertosSistema(sis, reales) : 0;
   return '<div class="tarjeta"><div class="res">' +
+    (jugados ? celda(llevamos + " de " + jugados, "Aciertos hasta ahora") : "") +
     celda(esperados.toFixed(1), "Aciertos de los 14 marcados") +
     celda(pct0(esperados / ps.length) + "%", "Confianza media") +
     celda("1 / " + Math.round(1 / Math.max(p14, 1e-12)).toLocaleString("es-ES"), "Clavar los 14 con este sistema") +
