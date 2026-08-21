@@ -100,6 +100,7 @@ h3.sub2{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:upper
 
 .signo{width:36px;height:36px;border-radius:6px;display:grid;place-items:center;font-family:var(--f-num);font-size:18px;font-weight:800;color:#fff;justify-self:center}
 .signo.s1{background:var(--s1)} .signo.sX{background:var(--sx)} .signo.s2{background:var(--s2)}
+.signo.multi{font-size:13px;letter-spacing:-.03em;background:var(--ink2)}
 
 .chip{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:10.5px;font-family:var(--f-num);letter-spacing:.06em;text-transform:uppercase;font-weight:700;border:1px solid var(--line);background:var(--panel2);color:var(--ink2)}
 .chip.valor{border-color:var(--acc);color:var(--acc);background:var(--accsoft)}
@@ -666,6 +667,38 @@ function signoElegido(c, modo) {
   return (m === 2 && sg !== 1 && c.p[sg] < UMBRAL_X) ? 1 : sg;
 }
 
+/* Cuatro maneras de rellenar el mismo boleto con el mismo modelo.
+   1 — el resultado más probable en los 14. Una columna.
+   2 — igual, pero los 1 y 2 que no llegan al 45% se cambian por X. Una columna.
+   3 — 7 dobles. Se doblan los partidos donde el segundo signo más gana respecto al
+       primero, o sea donde el favorito está menos claro. 2^7 = 128 columnas.
+   4 — 4 triples. Se triplican los cuatro partidos con el favorito más flojo, que son
+       los que más probabilidad rescatan al abrirlos del todo. 3^4 = 81 columnas. */
+const MODOS = [
+  { n: 1, nombre: "Pronóstico 1", cols: 1, desc: "Se marca siempre el resultado más probable. Una sola columna." },
+  { n: 2, nombre: "Pronóstico 2", cols: 1, desc: "Los <b>1</b> y <b>2</b> que no llegan al 45% se cambian por <b>X</b>: en los partidos abiertos, el empate es lo que menos se pierde." },
+  { n: 3, nombre: "3 · 7 dobles", cols: 128, desc: "Siete dobles repartidos donde el segundo signo más se acerca al favorito. <b>128 columnas</b>." },
+  { n: 4, nombre: "4 · 4 triples", cols: 81, desc: "Cuatro triples en los partidos con el favorito más flojo, los más abiertos de la jornada. <b>81 columnas</b>." }
+];
+const modoDe = m => MODOS.find(x => x.n === m) || MODOS[0];
+
+// Devuelve, para los 14 partidos, la lista de signos marcados en cada uno
+function columna(cs, modo) {
+  const m = modo || ui.modo;
+  const sel = cs.map(c => [signoElegido(c, m === 2 ? 2 : 1)]);
+  if (m === 3) {
+    cs.map((c, i) => ({ i, v: c.p[c.orden[1]] / Math.max(c.p[c.orden[0]], 1e-9) }))
+      .sort((a, b) => b.v - a.v).slice(0, 7)
+      .forEach(x => { sel[x.i] = [cs[x.i].orden[0], cs[x.i].orden[1]]; });
+  } else if (m === 4) {
+    cs.map((c, i) => ({ i, v: c.p[c.orden[0]] }))
+      .sort((a, b) => a.v - b.v).slice(0, 4)
+      .forEach(x => { sel[x.i] = [0, 1, 2]; });
+  }
+  return sel;
+}
+const costeCols = sel => sel.reduce((a, s) => a * s.length, 1);
+
 // Pleno al 15: los goles de cada equipo se marcan como 0, 1, 2 o M (tres o más)
 const catGol = g => g >= 3 ? "M" : String(g);
 const plenoDe = r => catGol(r.gl) + "-" + catGol(r.gv);
@@ -703,7 +736,7 @@ function construirBoleto(ps, maxCols) {
 function simular(N) {
   const ps = partidos().slice(0, 14).map(calc);
   if (!ps.length) return null;
-  const simple = ps.map(c => signoElegido(c));
+  const simple = columna(ps, ui.modo);
   const bol = construirBoleto(ps, Math.max(1, Math.round(ui.presupuesto)));
   const nP = ps.length;
   const histS = new Array(nP + 1).fill(0), histM = new Array(nP + 1).fill(0);
@@ -712,12 +745,17 @@ function simular(N) {
     for (let i = 0; i < nP; i++) {
       const p = ps[i].p, r = Math.random();
       const sg = r < p[0] ? 0 : r < p[0] + p[1] ? 1 : 2;
-      if (sg === simple[i]) a++;
+      if (simple[i].indexOf(sg) >= 0) a++;
       if (bol.sel[i].indexOf(sg) >= 0) b++;
     }
     histS[a]++; histM[b]++;
   }
-  return { N, nP, histS, histM, bol, probSimple: ps.reduce((s, c) => s * c.p[signoElegido(c)], 1), esperado: ps.reduce((s, c) => s + c.p[signoElegido(c)], 0) };
+  const pS = simple.map((mk, i) => mk.reduce((s, k) => s + ps[i].p[k], 0));
+  return {
+    N, nP, histS, histM, bol, colsSimple: costeCols(simple),
+    probSimple: pS.reduce((a, b) => a * b, 1),
+    esperado: pS.reduce((a, b) => a + b, 0)
+  };
 }
 function simularPartido(p, N) {
   const c = calc(p), cont = [0, 0, 0], marc = new Map();
@@ -781,17 +819,18 @@ function vPanel() {
 function vResumen() {
   const ps = partidos().slice(0, 14).map(calc);
   if (!ps.length) return "";
-  const conf = ps.reduce((s, c) => s + c.p[signoElegido(c)], 0) / ps.length;
-  const p14 = ps.reduce((s, c) => s * c.p[signoElegido(c)], 1);
-  const dudosos = ps.filter(c => c.p[c.orden[0]] < 0.45).length;
-  const sobre = ps.filter(c => c.sobre && c.sobre[c.orden[0]] > 0.12).length;
+  const col = columna(ps, ui.modo);
+  const cols = costeCols(col);
+  const pMarc = col.map((mk, i) => mk.reduce((s, k) => s + ps[i].p[k], 0));
+  const esperados = pMarc.reduce((a, b) => a + b, 0);
+  const p14 = pMarc.reduce((a, b) => a * b, 1);
   const celda = (v, t) => '<div class="celda"><b>' + v + "</b><small>" + t + "</small></div>";
   return '<div class="tarjeta"><div class="res">' +
-    celda(ps.reduce((s, c) => s + c.p[signoElegido(c)], 0).toFixed(1), "Aciertos de los 14 signos") +
-    celda(pct0(conf) + "%", "Confianza media") +
-    celda("1 / " + Math.round(1 / p14).toLocaleString("es-ES"), "Clavar los 14 a columna simple") +
-    celda(dudosos, "Partidos abiertos") +
-    celda(sobre, "Sobrejugados") +
+    celda(esperados.toFixed(1), "Aciertos esperados") +
+    celda(pct0(esperados / ps.length) + "%", "Confianza media") +
+    celda("1 / " + Math.round(1 / p14).toLocaleString("es-ES"), "Clavar los 14 con este sistema") +
+    celda(cols.toLocaleString("es-ES"), "Columnas a jugar") +
+    celda(EUR(cols * AJ.precioColumna), "Lo que cuesta") +
     celda(pct0(PESO_DATOS) + "%", "Peso de datos reales") +
     "</div></div>";
 }
@@ -800,10 +839,18 @@ function vBoleto() {
   const ps = partidos();
   const j = jornada();
   const ops = JOR.map(x => '<option value="' + x.id + '"' + (x.id === ui.jornada ? " selected" : "") + ">" + esc(x.nombre) + "</option>").join("");
+  const cs14 = ps.slice(0, 14).map(calc);
+  const col = columna(cs14, ui.modo);
+  const cols = costeCols(col);
   const filas = ps.map((p, i) => {
-    const c = calc(p), sg = signoElegido(c), pleno = i === 14, d = divDe(p.l);
+    const c = calc(p), pleno = i === 14, d = divDe(p.l);
+    // el pleno se marca siempre a un solo resultado; los dobles y triples son de los 14
+    const mk = pleno ? [c.orden[0]] : col[i];
+    const sg = mk[0];
     const marcas = [];
-    if (sg !== c.orden[0]) marcas.push('<span class="chip valor">era ' + SIGNOS[c.orden[0]] + "</span>");
+    if (mk.length === 1 && sg !== c.orden[0]) marcas.push('<span class="chip valor">era ' + SIGNOS[c.orden[0]] + "</span>");
+    if (mk.length === 2) marcas.push('<span class="chip valor">doble</span>');
+    if (mk.length === 3) marcas.push('<span class="chip valor">triple</span>');
     if (c.sobre && c.sobre[sg] > 0.12) marcas.push('<span class="chip riesgo">sobrejugado</span>');
     if (c.sobre) {
       const inf = c.orden.find(k => c.sobre[k] < -0.10);
@@ -824,7 +871,8 @@ function vBoleto() {
     }
     if (p.real) {
       // el pleno se acierta con el resultado exacto en 0/1/2/M, no con el 1X2
-      const bien = pleno ? plenoDe(p.real) === plenoOpciones(c)[0].k : signoDe(p.real.gl, p.real.gv) === sg;
+      const bien = pleno ? plenoDe(p.real) === plenoOpciones(c)[0].k
+        : mk.indexOf(signoDe(p.real.gl, p.real.gv)) >= 0;
       clase = bien ? " acertado" : " fallado";
       marcas.push('<span class="chip ' + (bien ? "ok" : "fallo") + '">' + (bien ? "✓" : "✗") + " " +
         p.real.gl + "-" + p.real.gv + " · " + (pleno ? plenoDe(p.real) : SIGNOS[signoDe(p.real.gl, p.real.gv)]) + "</span>");
@@ -835,8 +883,9 @@ function vBoleto() {
       '<div class="eq"><b>' + esc(nombre(p.l)) + "</b><span>" + esc(nombre(p.v)) + "</span></div>" +
       '<div class="hora">' + (p.h ? "<b>" + esc(String(p.h).split(" ")[0]) + "</b>" + esc(String(p.h).split(" ").slice(1).join(" ")) : "—") + "</div>" +
       barra(c.p) +
-      '<div class="signo s' + SIGNOS[sg] + '">' + SIGNOS[sg] + "</div>" +
-      '<div class="conf">' + pct(c.p[sg]) + "%</div>" +
+      '<div class="signo s' + SIGNOS[sg] + (mk.length > 1 ? " multi" : "") + '">' +
+      mk.slice().sort((a, b) => a - b).map(k => SIGNOS[k]).join("") + "</div>" +
+      '<div class="conf">' + pct(mk.reduce((s, k) => s + c.p[k], 0)) + "%</div>" +
       '<div class="marcas">' + marcas.join("") + "</div></div>";
   }).join("");
   return '<section class="tarjeta">' +
@@ -846,12 +895,13 @@ function vBoleto() {
     '<div style="display:flex;gap:12px;align-items:flex-end">' +
     (BOTE_ACTUAL > 0 && ui.jornada === JOR[JOR.length - 1].id ? '<span class="chip valor">bote de ' + EUR0(BOTE_ACTUAL) + "</span>" : "") +
     '<label class="campo">Ver jornada<select data-a="jornada">' + ops + "</select></label></div></div>" +
-    '<div class="leyenda"><div class="pestanas">' +
-    '<button data-a="modo" data-m="1" class="' + (ui.modo === 1 ? "on" : "") + '">Pronóstico 1</button>' +
-    '<button data-a="modo" data-m="2" class="' + (ui.modo === 2 ? "on" : "") + '">Pronóstico 2</button>' +
-    "</div><span>" + (ui.modo === 2 ?
-      "Los 1 y 2 que no llegan al 45% se cambian por X: en los partidos abiertos, el empate es lo que menos se pierde." :
-      "Se marca siempre el resultado más probable.") + "</span></div>" +
+    '<div class="leyenda" style="justify-content:space-between;align-items:center">' +
+    '<div class="pestanas">' +
+    MODOS.map(m => '<button data-a="modo" data-m="' + m.n + '" class="' + (ui.modo === m.n ? "on" : "") + '">' + esc(m.nombre) + "</button>").join("") +
+    "</div>" +
+    "<span>" + modoDe(ui.modo).desc +
+    (cols > 1 ? ' <b class="num">' + cols.toLocaleString("es-ES") + " columnas · " + EUR(cols * AJ.precioColumna) + "</b>" : "") +
+    "</span></div>" +
     '<div class="leyenda"><span><i style="background:var(--s1)"></i>Gana el local (1)</span>' +
     '<span><i style="background:var(--sx)"></i>Empate (X)</span>' +
     '<span><i style="background:var(--s2)"></i>Gana el visitante (2)</span>' +
@@ -1035,8 +1085,10 @@ function vSimSalida() {
     '<div class="pila" style="grid-template-columns:22px 1fr auto"><span class="num">' + (i + 1) + '</span><span>' +
     esc(nombre(p.l)) + " – " + esc(nombre(p.v)) + '</span><span class="v" style="font-weight:700;font-size:14px">' +
     b.sel[i].slice().sort((x, y) => x - y).map(k => SIGNOS[k]).join("") + "</span></div>").join("");
+  const costeSimple = (s.colsSimple * AJ.precioColumna).toFixed(2);
   return '<div class="cols2"><div>' +
-    '<h3 class="sub2">Jugando una sola columna</h3>' +
+    '<h3 class="sub2">Jugando ' + esc(modoDe(ui.modo).nombre) + " · " + s.colsSimple.toLocaleString("es-ES") +
+    (s.colsSimple === 1 ? " columna" : " columnas") + " (" + costeSimple + " €)</h3>" +
     '<span class="nota">De ' + N.toLocaleString("es-ES") + " jornadas simuladas, cuántos aciertos saldrían.</span>" + histo(s.histS) +
     '<div class="pilas" style="margin-top:12px">' + linea("Al menos 10", acum(s.histS, 10)) + linea("Al menos 12", acum(s.histS, 12)) + linea("Los " + s.nP, acum(s.histS, s.nP)) + "</div>" +
     '<div class="nota" style="margin-top:8px">Media: <b class="num">' + s.esperado.toFixed(2) + "</b> aciertos de " + s.nP +
@@ -1143,14 +1195,18 @@ function vEquipos() {
 
 function vAcierto() {
   const filas = JOR.map(j => {
-    const ps = j.partidos.slice(0, 14).filter(p => p.real);
-    if (!ps.length) return null;
-    let ac1 = 0, ac2 = 0, brier = 0;
-    ps.forEach(p => {
-      const c = calc(p), rs = signoDe(p.real.gl, p.real.gv);
-      if (signoElegido(c, 1) === rs) ac1++;
-      if (signoElegido(c, 2) === rs) ac2++;
-      brier += c.p.reduce((s, x, i) => s + Math.pow(x - (i === rs ? 1 : 0), 2), 0);
+    const n = j.partidos.slice(0, 14).filter(p => p.real).length;
+    if (!n) return null;
+    // los dobles y triples se deciden mirando los 14 de la jornada, no partido a partido
+    const cs14 = j.partidos.slice(0, 14).map(calc);
+    const cols = MODOS.map(m => ({ m, sel: columna(cs14, m.n) }));
+    const ac = cols.map(() => 0);
+    let brier = 0;
+    j.partidos.slice(0, 14).forEach((p, i) => {
+      if (!p.real) return;
+      const rs = signoDe(p.real.gl, p.real.gv);
+      cols.forEach((x, k) => { if (x.sel[i].indexOf(rs) >= 0) ac[k]++; });
+      brier += calc(p).p.reduce((s, x, q) => s + Math.pow(x - (q === rs ? 1 : 0), 2), 0);
     });
     // el pleno se juzga aparte: hay que clavar el resultado exacto en 0/1/2/M
     const p15 = j.partidos[14];
@@ -1159,23 +1215,29 @@ function vAcierto() {
       const marcado = plenoOpciones(calc(p15))[0].k;
       pleno = { marcado, real: plenoDe(p15.real), bien: marcado === plenoDe(p15.real) };
     }
-    return { j, n: ps.length, ac1, ac2, brier: brier / ps.length, pleno };
+    return { j, n, ac, brier: brier / n, pleno };
   }).filter(Boolean);
   if (!filas.length) return '<section class="tarjeta"><div class="cuerpo"><div class="nota">Todavía no hay jornadas con todos los resultados. En cuanto se juegue una, aquí aparecerá cuántos signos habría acertado el modelo.</div></div></section>';
-  const tot = filas.reduce((a, f) => ({ ac1: a.ac1 + f.ac1, ac2: a.ac2 + f.ac2, n: a.n + f.n }), { ac1: 0, ac2: 0, n: 0 });
+  const tot = { n: filas.reduce((a, f) => a + f.n, 0), ac: MODOS.map((m, k) => filas.reduce((a, f) => a + f.ac[k], 0)) };
   const totPleno = filas.reduce((a, f) => f.pleno ? { ac: a.ac + (f.pleno.bien ? 1 : 0), n: a.n + 1 } : a, { ac: 0, n: 0 });
   const celdaAc = (ac, n, mejor) => (mejor ? "<b>" : "") + ac + " de " + n + " - " + Math.round(ac / n * 100) + "%" + (mejor ? "</b>" : "");
+  const cabecera = MODOS.map(m => "<th class='n'>" + esc(m.nombre) + "<br><span class='nota'>" +
+    m.cols.toLocaleString("es-ES") + " col · " + EUR(m.cols * AJ.precioColumna) + "</span></th>").join("");
   return '<section class="tarjeta"><div class="cabtar"><h2 class="tit">Acierto del modelo</h2>' +
     '<span class="eyebrow">jornadas ya jugadas</span></div><div class="cuerpo">' +
-    '<div class="aviso" style="margin-bottom:12px">Un boleto son <b>15 partidos: los 14 primeros se juegan a signo</b> (1, X o 2) <b>y el decimoquinto es el pleno</b>, que exige clavar el resultado exacto. Por eso van en columnas separadas: no se aciertan de la misma manera.<br><br>Estos números se calculan <b>con los datos de hoy</b>, no son una predicción hecha a ciegas antes del partido: sirven para ver si el modelo va fino, no como historial de apuestas. El <b>Brier</b> mide lo bien calibradas que están las probabilidades — cuanto más bajo, mejor; 0,67 sería tirar una moneda a tres caras.<br><br>Pronóstico 1 marca siempre el resultado más probable. Pronóstico 2 cambia por X todos los 1 y 2 que no llegan al 45%. En negrita, el que habría acertado más esa jornada.</div>' +
-    '<div class="envuelve"><table class="datos"><tr><th>Jornada</th><th class="n">Pronóstico 1</th><th class="n">Pronóstico 2</th><th>Pleno al 15</th><th class="n">Brier</th></tr>' +
-    filas.map(f => "<tr><td>" + esc(f.j.nombre) + "</td><td class='n'>" + celdaAc(f.ac1, f.n, f.ac1 > f.ac2) + "</td>" +
-      "<td class='n'>" + celdaAc(f.ac2, f.n, f.ac2 > f.ac1) + "</td><td>" +
-      (f.pleno ? '<span class="chip ' + (f.pleno.bien ? "ok" : "fallo") + '">' + (f.pleno.bien ? "✓" : "✗") + " " + f.pleno.marcado +
-        (f.pleno.bien ? "" : " · salió " + f.pleno.real) + "</span>" : "—") +
-      "</td><td class='n'>" + f.brier.toFixed(3) + "</td></tr>").join("") +
-    "<tr><td><b>Total</b></td><td class='n'>" + celdaAc(tot.ac1, tot.n, tot.ac1 > tot.ac2) + "</td><td class='n'>" +
-    celdaAc(tot.ac2, tot.n, tot.ac2 > tot.ac1) + "</td><td class='n'><b>" + totPleno.ac + "</b> de " + totPleno.n + "</td><td></td></tr>" +
+    '<div class="aviso" style="margin-bottom:12px">Un boleto son <b>15 partidos: los 14 primeros se juegan a signo</b> (1, X o 2) <b>y el decimoquinto es el pleno</b>, que exige clavar el resultado exacto. Por eso van en columnas separadas: no se aciertan de la misma manera.<br><br>Estos números se calculan <b>con los datos de hoy</b>, no son una predicción hecha a ciegas antes del partido: sirven para ver si el modelo va fino, no como historial de apuestas. El <b>Brier</b> mide lo bien calibradas que están las probabilidades — cuanto más bajo, mejor; 0,67 sería tirar una moneda a tres caras.<br><br>Los cuatro sistemas salen del mismo modelo, cambia solo cómo se rellena el boleto. Con dobles y triples un partido cuenta como acertado si el resultado está entre los signos marcados, así que <b>acertar más no significa ganar más</b>: 128 columnas cuestan 96 € y una sola cuesta 0,75 €. Mira siempre las dos cifras juntas. En negrita, el que más acertó esa jornada.</div>' +
+    '<div class="envuelve"><table class="datos"><tr><th>Jornada</th>' + cabecera + '<th>Pleno al 15</th><th class="n">Brier</th></tr>' +
+    filas.map(f => {
+      const mx = Math.max.apply(null, f.ac);
+      return "<tr><td>" + esc(f.j.nombre) + "</td>" +
+        MODOS.map((m, k) => "<td class='n'>" + celdaAc(f.ac[k], f.n, f.ac[k] === mx) + "</td>").join("") +
+        "<td>" + (f.pleno ? '<span class="chip ' + (f.pleno.bien ? "ok" : "fallo") + '">' + (f.pleno.bien ? "✓" : "✗") + " " + f.pleno.marcado +
+          (f.pleno.bien ? "" : " · salió " + f.pleno.real) + "</span>" : "—") +
+        "</td><td class='n'>" + f.brier.toFixed(3) + "</td></tr>";
+    }).join("") +
+    "<tr><td><b>Total</b></td>" +
+    MODOS.map((m, k) => "<td class='n'>" + celdaAc(tot.ac[k], tot.n, tot.ac[k] === Math.max.apply(null, tot.ac)) + "</td>").join("") +
+    "<td><b>" + totPleno.ac + "</b> de " + totPleno.n + "</td><td></td></tr>" +
     "</table></div></div></section>";
 }
 
