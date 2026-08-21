@@ -677,8 +677,8 @@ function signoElegido(c, modo) {
 const MODOS = [
   { n: 1, nombre: "Pronóstico 1", cols: 1, desc: "Se marca siempre el resultado más probable. Una sola columna." },
   { n: 2, nombre: "Pronóstico 2", cols: 1, desc: "Los <b>1</b> y <b>2</b> que no llegan al 45% se cambian por <b>X</b>: en los partidos abiertos, el empate es lo que menos se pierde." },
-  { n: 3, nombre: "3 · 7 dobles", cols: 16, desc: "Siete dobles donde el segundo signo más se acerca al favorito, en <b>reducida de 16 columnas</b> en vez de 128. Si los 14 marcados son correctos, garantiza 13 <b>y una de cada ocho veces clava los 14</b>." },
-  { n: 4, nombre: "4 · 4 triples", cols: 9, desc: "Cuatro triples en los partidos más abiertos, en <b>reducida de 9 columnas</b> en vez de 81. Si los 14 marcados son correctos, garantiza 13 <b>y una de cada nueve veces clava los 14</b>." }
+  { n: 3, nombre: "3 · 7 dobles", cols: 16, desc: "Siete dobles donde el segundo signo más se acerca al favorito. Es la <b>Segunda reducida oficial de LAE</b>: 16 columnas en vez de 128, 12,00 €, con garantía de 13 si los 14 marcados son correctos — <b>y una de cada ocho veces clava los 14</b>." },
+  { n: 4, nombre: "4 · 4 triples", cols: 9, desc: "Cuatro triples en los partidos más abiertos. Es la <b>Primera reducida oficial de LAE</b>: 9 columnas en vez de 81, 6,75 €, con garantía de 13 si los 14 marcados son correctos — <b>y una de cada nueve veces clava los 14</b>." }
 ];
 const modoDe = m => MODOS.find(x => x.n === m) || MODOS[0];
 
@@ -686,10 +686,14 @@ const modoDe = m => MODOS.find(x => x.n === m) || MODOS[0];
 function columna(cs, modo) {
   const m = modo || ui.modo;
   const sel = cs.map(c => [signoElegido(c, m === 2 ? 2 : 1)]);
+  /* Cuanto gana al anadir el segundo signo, en proporcion al primero.
+     Los dos signos van en ORDEN ASCENDENTE (1, X, 2), no por probabilidad: el boleto
+     oficial dice que los signos de la tabla se sustituyen por la pareja del bloque
+     de pronosticos "y en el mismo orden". */
   if (m === 3) {
     cs.map((c, i) => ({ i, v: c.p[c.orden[1]] / Math.max(c.p[c.orden[0]], 1e-9) }))
       .sort((a, b) => b.v - a.v).slice(0, 7)
-      .forEach(x => { sel[x.i] = [cs[x.i].orden[0], cs[x.i].orden[1]]; });
+      .forEach(x => { sel[x.i] = [cs[x.i].orden[0], cs[x.i].orden[1]].sort((a, b) => a - b); });
   } else if (m === 4) {
     cs.map((c, i) => ({ i, v: c.p[c.orden[0]] }))
       .sort((a, b) => a.v - b.v).slice(0, 4)
@@ -706,17 +710,22 @@ const costeCols = sel => sel.reduce((a, s) => a * s.length, 1);
    7 dobles -> codigo de Hamming [7,4]: 16 columnas de las 128, radio de cobertura 1.
    4 triples -> Hamming ternario [4,2]: 9 columnas de las 81, radio 1.
    En ambos, si los 14 signos marcados contienen el resultado, se garantizan 13. */
-function patronesDobles() {
-  const out = [];
-  for (let d = 0; d < 16; d++) {
-    const d1 = (d >> 3) & 1, d2 = (d >> 2) & 1, d3 = (d >> 1) & 1, d4 = d & 1;
-    out.push([d1 ^ d2 ^ d4, d1 ^ d3 ^ d4, d1, d2 ^ d3 ^ d4, d2, d3, d4]);
-  }
-  return out;
-}
+/* Tabla de la Reduccion SEGUNDA, transcrita del boleto oficial: 7 dobles, 16 apuestas.
+   Verificada: 16 apuestas distintas, distancia minima 3 y radio de cobertura 1.
+   De las 128 combinaciones posibles, 16 dan los 14 aciertos y 112 dan 13.
+   Cada fila es una apuesta; 0 = primer signo del doble, 1 = segundo. */
+const TABLA_SEGUNDA = [
+  [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1], [1, 1, 1, 1, 0, 0, 0], [1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 0, 0, 1, 0, 0], [1, 1, 0, 0, 0, 1, 1], [0, 0, 1, 1, 1, 0, 0], [0, 0, 1, 1, 0, 1, 1],
+  [1, 0, 1, 0, 0, 1, 0], [1, 0, 1, 0, 1, 0, 1], [0, 1, 0, 1, 0, 1, 0], [0, 1, 0, 1, 1, 0, 1],
+  [1, 0, 0, 1, 0, 0, 1], [1, 0, 0, 1, 1, 1, 0], [0, 1, 1, 0, 0, 0, 1], [0, 1, 1, 0, 1, 1, 0]
+];
+function patronesDobles() { return TABLA_SEGUNDA; }
+/* Tabla de la Reduccion PRIMERA, transcrita del boleto oficial: 4 triples, 9 apuestas.
+   Verificada: distancia minima 3 y radio de cobertura 1, o sea perfecta. */
 function patronesTriples() {
   const out = [];
-  for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) out.push([a, b, (a + b) % 3, (a + 2 * b) % 3]);
+  for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) out.push([a, b, (a + b) % 3, (2 * a + b) % 3]);
   return out;
 }
 // Devuelve los signos marcados por partido y la lista de columnas que se juegan de verdad
