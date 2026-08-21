@@ -67,10 +67,11 @@ label.campo{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(
 h2.tit{font-size:15px;font-weight:700;letter-spacing:-.01em}
 h3.sub2{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);font-family:var(--f-num)}
 
-.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--line2)}
-.res .celda{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:1px}
-.res .celda b{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:23px;font-weight:700;letter-spacing:-.02em}
-.res .celda small{color:var(--muted);font-size:11px;font-family:var(--f-num);letter-spacing:.07em;text-transform:uppercase}
+/* ocho casillas tienen que caber en una sola fila: si sobra una queda fea */
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(116px,1fr));gap:1px;background:var(--line2)}
+.res .celda{background:var(--panel);padding:10px 11px;display:flex;flex-direction:column;gap:1px}
+.res .celda b{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:19px;font-weight:700;letter-spacing:-.03em}
+.res .celda small{color:var(--muted);font-size:9.5px;font-family:var(--f-num);letter-spacing:.05em;text-transform:uppercase;line-height:1.35}
 
 .leyenda{display:flex;flex-wrap:wrap;gap:16px;padding:11px 16px;background:var(--panel2);border-bottom:1px solid var(--line2);font-size:12px;color:var(--ink2)}
 .leyenda i{font-style:normal;display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:5px}
