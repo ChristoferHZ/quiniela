@@ -215,8 +215,8 @@ const SIGNOS = ["1", "X", "2"];
    ║  BLOQUE DE DATOS — lo mantiene Claude. El usuario no edita nada aquí.    ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
-const DATOS_ACTUALIZADO = "2026-08-20";  // parte de bajas J2 y H2H
-const DATOS_PENDIENTE = "Quedan por jugarse cuatro partidos de la jornada 1 de Primera: Valencia-Betis el 25, Real Madrid-Real Sociedad el 26, y Barcelona-Athletic y Celta-Osasuna el 27, este último aplazado por el estado del césped de Balaídos. Del historial de enfrentamientos solo falta Castellón-Sabadell: no hay ninguna fuente que desglose el balance concreto en Castalia.";
+const DATOS_ACTUALIZADO = "2026-08-23";  // resultados confirmados de la Jornada 2
+const DATOS_PENDIENTE = "De la jornada 2 de la Quiniela aún faltan por confirmarse Eibar-Valladolid, Getafe-Racing, Elche-Barcelona, Castellón-Sabadell, Sporting-Burgos y Tenerife-Almería (a esta hora seguían en juego o sin crónica fiable, con fuentes que se contradecían entre sí), además de Osasuna-Levante y Málaga-Deportivo, que se juegan el lunes 24. De la jornada 1 de Primera siguen pendientes Valencia-Betis (25 de agosto), Real Madrid-Real Sociedad (26), y Barcelona-Athletic y Celta-Osasuna (27, este último aplazado por el césped de Balaídos). La Quiniela ya tiene anunciada una jornada 3 para el 29-31 de agosto —la primera con cuatro partidos de fútbol femenino—, pero no se ha podido cargar: el acceso a loteriasyapuestas.es, laquiniela.es, libertaddigital.com y a las casas de apuestas está bloqueado por la política de red de este entorno, así que faltan el orden oficial de los 15 partidos, los horarios, el porcentaje del público y las cuotas.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -385,7 +385,16 @@ const RESULTADOS = [
   { jor: 1, l: "laspalmas", v: "albacete", gl: 2, gv: 1 },
   { jor: 1, l: "sporting", v: "sabadell", gl: 0, gv: 0 },
   { jor: 1, l: "rsociedadb", v: "castellon", gl: 0, gv: 1 },
-  { jor: 1, l: "almeria", v: "eldense", gl: 3, gv: 0 }
+  { jor: 1, l: "almeria", v: "eldense", gl: 3, gv: 0 },
+  // Primera, jornada 2 (partidos de la Quiniela Jornada 2 ya disputados y confirmados)
+  { jor: 2, l: "athletic", v: "sevilla", gl: 1, gv: 3 },
+  { jor: 2, l: "valencia", v: "celta", gl: 0, gv: 0 },
+  { jor: 2, l: "espanyol", v: "rmadrid", gl: 1, gv: 2 },
+  { jor: 2, l: "atmadrid", v: "villarreal", gl: 2, gv: 2 },
+  // Segunda, jornada 2
+  { jor: 2, l: "oviedo", v: "leganes", gl: 0, gv: 1 },
+  { jor: 2, l: "ceuta", v: "laspalmas", gl: 0, gv: 2 },
+  { jor: 2, l: "eldense", v: "cadiz", gl: 2, gv: 2 }
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
