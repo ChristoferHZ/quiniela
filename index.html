@@ -215,8 +215,8 @@ const SIGNOS = ["1", "X", "2"];
    ║  BLOQUE DE DATOS — lo mantiene Claude. El usuario no edita nada aquí.    ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
-const DATOS_ACTUALIZADO = "2026-08-23";  // resultados confirmados de la Jornada 2
-const DATOS_PENDIENTE = "De la jornada 2 de la Quiniela aún faltan por confirmarse Eibar-Valladolid, Getafe-Racing, Elche-Barcelona, Castellón-Sabadell, Sporting-Burgos y Tenerife-Almería (a esta hora seguían en juego o sin crónica fiable, con fuentes que se contradecían entre sí), además de Osasuna-Levante y Málaga-Deportivo, que se juegan el lunes 24. De la jornada 1 de Primera siguen pendientes Valencia-Betis (25 de agosto), Real Madrid-Real Sociedad (26), y Barcelona-Athletic y Celta-Osasuna (27, este último aplazado por el césped de Balaídos). La Quiniela ya tiene anunciada una jornada 3 para el 29-31 de agosto —la primera con cuatro partidos de fútbol femenino—, pero no se ha podido cargar: el acceso a loteriasyapuestas.es, laquiniela.es, libertaddigital.com y a las casas de apuestas está bloqueado por la política de red de este entorno, así que faltan el orden oficial de los 15 partidos, los horarios, el porcentaje del público y las cuotas.";
+const DATOS_ACTUALIZADO = "2026-08-24";  // resultados confirmados de la Jornada 2
+const DATOS_PENDIENTE = "De la jornada 2 de la Quiniela solo faltan Osasuna-Levante y Málaga-Deportivo, que se juegan hoy lunes 24 y a esta hora aún no tenían resultado confirmado. De la jornada 1 de Primera siguen pendientes Valencia-Betis (25 de agosto), Real Madrid-Real Sociedad (26), y Barcelona-Athletic y Celta-Osasuna (27, este último aplazado por el césped de Balaídos). La Quiniela ya tiene anunciada una jornada 3 para el 29-31 de agosto —la primera con cuatro partidos de fútbol femenino, con Levante-Betis, Real Sociedad-Espanyol, Sevilla-Atlético y Albacete-Oviedo entre los confirmados—, pero no se ha podido cargar: el acceso a loteriasyapuestas.es, laquiniela.es, libertaddigital.com, quiniela15.com, eduardolosilla.es, pizarra15.es, casasdeapuestas.com, oddschecker.com y otras fuentes de quiniela y apuestas sigue bloqueado por la política de red de este entorno, así que faltan el orden oficial de los 15 partidos, los horarios, el porcentaje del público y las cuotas.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -391,10 +391,17 @@ const RESULTADOS = [
   { jor: 2, l: "valencia", v: "celta", gl: 0, gv: 0 },
   { jor: 2, l: "espanyol", v: "rmadrid", gl: 1, gv: 2 },
   { jor: 2, l: "atmadrid", v: "villarreal", gl: 2, gv: 2 },
+  { jor: 2, l: "getafe", v: "racing", gl: 1, gv: 0 },
+  { jor: 2, l: "elche", v: "barcelona", gl: 0, gv: 5 },
+  // Osasuna-Levante y Málaga-Deportivo, lunes 24 de agosto, aún sin confirmar.
   // Segunda, jornada 2
   { jor: 2, l: "oviedo", v: "leganes", gl: 0, gv: 1 },
   { jor: 2, l: "ceuta", v: "laspalmas", gl: 0, gv: 2 },
-  { jor: 2, l: "eldense", v: "cadiz", gl: 2, gv: 2 }
+  { jor: 2, l: "eldense", v: "cadiz", gl: 2, gv: 2 },
+  { jor: 2, l: "eibar", v: "valladolid", gl: 1, gv: 0 },
+  { jor: 2, l: "castellon", v: "sabadell", gl: 0, gv: 0 },
+  { jor: 2, l: "sporting", v: "burgos", gl: 1, gv: 0 },
+  { jor: 2, l: "tenerife", v: "almeria", gl: 1, gv: 0 }
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
