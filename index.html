@@ -215,8 +215,8 @@ const SIGNOS = ["1", "X", "2"];
    ║  BLOQUE DE DATOS — lo mantiene Claude. El usuario no edita nada aquí.    ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
-const DATOS_ACTUALIZADO = "2026-08-24";  // Osasuna-Levante y Málaga-Deportivo ya confirmados: Jornada 2 de la Quiniela completa
-const DATOS_PENDIENTE = "La jornada 2 de la Quiniela ya está completa: Osasuna 0-0 Levante y Málaga 1-1 Deportivo, los dos partidos que faltaban, se jugaron y terminaron hoy lunes 24. Su escrutinio oficial (premios y bote) aún no se ha podido consultar. De la jornada 1 de Primera siguen pendientes Valencia-Betis (25 de agosto), Real Madrid-Real Sociedad (26), y Barcelona-Athletic y Celta-Osasuna (27, este último aplazado por el césped de Balaídos). La Quiniela ya tiene anunciada una jornada 3 para el 29-31 de agosto —con Levante-Betis, Real Sociedad-Espanyol y Sevilla-Atlético el sábado; Real Madrid-Málaga, Deportivo-Valencia, Cádiz-Valladolid y Córdoba-Granada el domingo; y el Pleno al 15 en Barcelona-Rayo Vallecano junto a Osasuna-Getafe el lunes, además de sus primeros cuatro partidos de fútbol femenino—, pero no se ha podido cargar con garantías: en este entorno el acceso directo a loteriasyapuestas.es, laquiniela.es, libertaddigital.com, quiniela15.com, eduardolosilla.es, casasdeapuestas.com y prácticamente cualquier web (incluidas fuentes no relacionadas con apuestas) está bloqueado por la política de red, así que faltan el orden oficial exacto de los 15 partidos, los horarios, el porcentaje del público y las cuotas, y no se pueden dar por buenos con una simple búsqueda.";
+const DATOS_ACTUALIZADO = "2026-08-25";  // Segunda División completa la jornada 2 (Córdoba-Girona, Albacete-Real Sociedad B, Granada-Mallorca, Celta Fortuna-Andorra)
+const DATOS_PENDIENTE = "La jornada 2 de Segunda División ya está completa tras confirmarse Córdoba 2-1 Girona, Albacete 1-2 Real Sociedad B, Granada 2-0 Mallorca y Celta Fortuna 4-2 Andorra (21-24 de agosto). De la jornada 2 de Primera siguen pendientes de jugarse Valencia-Betis (25 de agosto), Real Madrid-Real Sociedad (26), y Barcelona-Athletic y Celta-Osasuna (27, este último aplazado por el césped de Balaídos). El escrutinio de la jornada 2 de la Quiniela ya está cerrado —el Pleno al 15 fue Atlético de Madrid 2-2 Villarreal, sin acertantes; hubo 1 acertante de 14 (391.563 €) y 28 de 13 (6.555 € cada uno)— pero la recaudación total, el bote exacto que arrastra a la jornada 3 y el desglose de 12, 11, 10 aciertos y Elige 8 no se han podido confirmar con una fuente fiable, así que no se han cargado en Premios ni se ha tocado el bote. La Quiniela ya tiene anunciada su jornada 3 para el 29-31 de agosto, con la novedad de incorporar por primera vez cuatro partidos de la Liga F femenina junto a los de Primera y Segunda, pero no se ha podido cargar con garantías: en este entorno el acceso directo a loteriasyapuestas.es, laquiniela.es, libertaddigital.com, quiniela15.com, eduardolosilla.es y casasdeapuestas.com sigue bloqueado por la política de red, y las búsquedas indirectas han dado datos contradictorios entre sí (alguna fuente cita un partido Celta-Athletic que no encaja con el resto, y hay dudas sobre si Real Madrid-Málaga es de Primera en esa fecha), así que faltan el orden oficial de los 15 partidos, los horarios, el porcentaje del público, las cuotas y la posición de los cuatro partidos de Liga F —cuyos equipos, además, no están dados de alta en el modelo—, y no se pueden dar por buenos sin verlos en el boletín oficial.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -402,7 +402,11 @@ const RESULTADOS = [
   { jor: 2, l: "eibar", v: "valladolid", gl: 1, gv: 0 },
   { jor: 2, l: "castellon", v: "sabadell", gl: 0, gv: 0 },
   { jor: 2, l: "sporting", v: "burgos", gl: 1, gv: 0 },
-  { jor: 2, l: "tenerife", v: "almeria", gl: 1, gv: 0 }
+  { jor: 2, l: "tenerife", v: "almeria", gl: 1, gv: 0 },
+  { jor: 2, l: "cordoba", v: "girona", gl: 2, gv: 1 },
+  { jor: 2, l: "albacete", v: "rsociedadb", gl: 1, gv: 2 },
+  { jor: 2, l: "granada", v: "mallorca", gl: 2, gv: 0 },
+  { jor: 2, l: "celtaf", v: "andorra", gl: 4, gv: 2 }
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
