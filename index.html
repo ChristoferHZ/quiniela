@@ -215,8 +215,8 @@ const SIGNOS = ["1", "X", "2"];
    ║  BLOQUE DE DATOS — lo mantiene Claude. El usuario no edita nada aquí.    ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
-const DATOS_ACTUALIZADO = "2026-08-28";  // Confirmado Celta 1-2 Osasuna, el ultimo de los cuatro aplazados de la jornada 1
-const DATOS_PENDIENTE = "Se ha confirmado Celta de Vigo 1-2 Osasuna (jugado el 27 de agosto, aplazado por el hongo en el césped de Balaídos), el cuarto y último de los partidos aplazados de la JORNADA 1 de Primera: con esto los cuatro aplazados (Valencia-Betis, Real Madrid-Real Sociedad, Barcelona-Athletic y Celta-Osasuna) ya tienen resultado y la jornada 1 queda completa en el modelo. Sobre el escrutinio de la jornada 2 de la Quiniela se ha podido confirmar más detalle por varias fuentes coincidentes: recaudación de 2.447.268,75 €, 1ª categoría (14 aciertos) con 1 acertante y 391.563,00 €, 2ª categoría (13 aciertos) con 28 acertantes y 6.555,18 € cada uno, 3ª categoría (12 aciertos) con 448 acertantes y 409,70 € cada uno, y Elige 8 con 32 apuestas acertantes de 1.406,11 € cada una; el Pleno al 15 quedó desierto y su bote (1.300.000 €) pasa a la jornada 3, cifra que ya estaba cargada en Bote Actual. Pero el desglose de 11 y 10 aciertos sigue sin poder confirmarse: loteriasyapuestas.es, eduardolosilla.es y tulotero.es continúan bloqueados en este entorno (fallo EGRESS_BLOCKED del proxy de red) y ninguna búsqueda devuelve esas dos cifras exactas, así que se mantiene sin cargar en Premios para no publicar categorías a medias. Sobre la jornada 3 de la Quiniela (cierre 29 de agosto 17:00, bote de 1.300.000 €) hay una novedad histórica confirmada por varias fuentes independientes (Infobae, Artículo14, VAVEL, Efeminista, Betbrothers): por primera vez la Quiniela incluye 4 partidos de la Liga F femenina —jornada 1 de su competición: Athletic Club-Badalona, Eibar-Espanyol, Alavés-Valencia y Real Madrid-Atlético de Madrid— dentro de los 14 partidos normales, tras el Real Decreto de mayo de 2026 que reconoce a la Liga F como beneficiaria de la recaudación. El Pleno al 15 es Barcelona-Rayo Vallecano (lunes 31), y entre los partidos masculinos aparecen también Alavés-Villarreal, Real Sociedad-Espanyol, Sevilla-Atlético, Levante-Betis, Real Madrid-Málaga, Deportivo-Valencia, Osasuna-Getafe, Albacete-Real Oviedo, Cádiz-Valladolid y Córdoba-Granada. Aun así la jornada 3 se deja fuera de esta actualización por dos motivos: en este entorno sigue sin poder accederse a loteriasyapuestas.es, laquiniela.es, libertaddigital.com, quiniela15.com, casasdeapuestas.com, eduardolosilla.es, pizarra15.es, marca.com, laliga.com ni siquiera wikipedia.org (todo el tráfico saliente a esos dominios devuelve EGRESS_BLOCKED), así que no hay forma fiable de confirmar el orden exacto del boleto oficial, las horas peninsulares reales, los porcentajes de público ni las cuotas de ningún partido; y aunque se consiguiera ese boleto, los 4 equipos de Liga F no están dados de alta en el modelo, que no contempla una tercera competición en EQUIPOS_SEMILLA.";
+const DATOS_ACTUALIZADO = "2026-08-28";  // Completados los 8 partidos de la jornada 2 de Primera y cargado el escrutinio parcial de esa jornada
+const DATOS_PENDIENTE = "Se han localizado los dos partidos de la JORNADA 2 de Primera que faltaban en el modelo: Real Betis 1-0 Real Sociedad (21 de agosto, en La Cartuja, gol de Riquelme) y Rayo Vallecano 1-1 Alavés (20 de agosto, en Butarque, campo prestado por el Leganés porque el Rayo sigue sin poder usar Vallecas); con esto la jornada 2 de Primera queda completa en el modelo (10 de 10 partidos). También se ha cargado en Premios el escrutinio de la Jornada 2 de la Quiniela, confirmado por varias fuentes coincidentes: recaudación de 2.447.268,75 €, Pleno al 15 desierto (Atlético de Madrid 2-2 Villarreal, sin acertantes, bote de 1.300.000 € que pasa a la jornada 3), 1ª categoría (14 aciertos) con 1 acertante y 391.563,00 €, 2ª categoría (13 aciertos) con 28 acertantes y 6.555,18 € cada uno, 3ª categoría (12 aciertos) con 448 acertantes y 409,70 € cada uno, y Elige 8 con 32 apuestas acertantes de 1.406,11 € cada una. El desglose de 11 y 10 aciertos sigue sin poder confirmarse con una cifra exacta: loteriasyapuestas.es, eduardolosilla.es y tulotero.es continúan bloqueados en este entorno (EGRESS_BLOCKED en el proxy de red) y ninguna búsqueda indirecta da esas dos cifras, así que se dejan fuera de Premios para no inventarlas. Sobre la jornada 3 de la Quiniela (cierre 29 de agosto 17:00, bote de 1.300.000 €) hay piezas sueltas confirmadas por varias fuentes —el Pleno al 15 es Barcelona-Rayo Vallecano (lunes 31, 21:30); entre los partidos masculinos aparecen Levante-Betis, Real Sociedad-Espanyol, Sevilla-Atlético, Real Madrid-Málaga, Deportivo-Valencia, Celta-Athletic, Osasuna-Getafe, Alavés-Villarreal, Albacete-Real Oviedo, Cádiz-Valladolid y Córdoba-Granada; y por primera vez el boleto incluye 4 partidos de la Liga F femenina (jornada 1 de su competición: Athletic Club-Badalona, Eibar-Espanyol, Alavés-Valencia y Real Madrid-Atlético de Madrid), tras el Real Decreto de mayo de 2026 que la reconoce como beneficiaria de la recaudación— pero la jornada 3 se deja fuera de esta actualización: en este entorno sigue bloqueado el acceso directo a loteriasyapuestas.es, laquiniela.es, libertaddigital.com, quiniela15.com, casasdeapuestas.com, eduardolosilla.es, pizarra15.es, marca.com, laliga.com e incluso wikipedia.org, así que no hay forma fiable de confirmar el orden exacto del boleto oficial, las horas peninsulares, el porcentaje de público ni las cuotas de ningún partido; y aunque se consiguiera ese boleto, los equipos de Liga F no están dados de alta en el modelo, que no contempla una tercera competición en EQUIPOS_SEMILLA.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -400,6 +400,8 @@ const RESULTADOS = [
   { jor: 2, l: "elche", v: "barcelona", gl: 0, gv: 5 },
   { jor: 2, l: "osasuna", v: "levante", gl: 0, gv: 0 },
   { jor: 2, l: "malaga", v: "deportivo", gl: 1, gv: 1 },
+  { jor: 2, l: "betis", v: "rsociedad", gl: 1, gv: 0 }, // jugado el 21 de agosto en La Cartuja
+  { jor: 2, l: "rayo", v: "alaves", gl: 1, gv: 1 }, // jugado el 20 de agosto en Butarque (el Rayo sigue sin estadio propio)
   // Segunda, jornada 2
   { jor: 2, l: "oviedo", v: "leganes", gl: 0, gv: 1 },
   { jor: 2, l: "ceuta", v: "laspalmas", gl: 0, gv: 2 },
@@ -446,6 +448,18 @@ const PREMIOS = [
       ["11 aciertos", 2338, 54.78],
       ["10 aciertos", 13646, 11.26],
       ["Elige 8", 23, 1392.60]
+    ]
+  },
+  {
+    // 11 y 10 aciertos sin confirmar todavia: loteriasyapuestas.es, eduardolosilla.es
+    // y tulotero.es siguen bloqueados en este entorno y ninguna busqueda da esas dos cifras.
+    jornada: "Jornada 2", recaudacion: 2447268.75, bote: 1300000.00,
+    categorias: [
+      ["Pleno al 15", 0, 0],
+      ["14 aciertos", 1, 391563.00],
+      ["13 aciertos", 28, 6555.18],
+      ["12 aciertos", 448, 409.70],
+      ["Elige 8", 32, 1406.11]
     ]
   }
 ];
