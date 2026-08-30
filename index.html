@@ -215,8 +215,8 @@ const SIGNOS = ["1", "X", "2"];
    ║  BLOQUE DE DATOS — lo mantiene Claude. El usuario no edita nada aquí.    ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
-const DATOS_ACTUALIZADO = "2026-08-30";  // Añadidos dos resultados mas confirmados de la jornada 3 de Primera (Sevilla-Atlético y Real Madrid-Málaga)
-const DATOS_PENDIENTE = "Se han confirmado por varias fuentes coincidentes y con detalle (goleadores y minutos) dos resultados más de la JORNADA 3 de Primera: Sevilla 1-3 Atlético de Madrid (doblete de Álex Baena y gol de Lookman, 29 de agosto) y Real Madrid 4-0 Málaga (Bellingham, gol en propia puerta de Herrero, Mbappé y Güler, 30 de agosto), que se suman a Levante 5-2 Betis y Real Sociedad 2-1 Espanyol ya cargados. La jornada 3 de la Quiniela (boleto de 15 partidos, cierre el 29 de agosto a las 17:00, bote de 1.300.000 €) sigue sin poder cargarse en JORNADAS: el acceso directo a las fuentes oficiales (loteriasyapuestas.es, laquiniela.es, libertaddigital.com, casasdeapuestas.com, eduardolosilla.es, quiniela15.com, laliga.com e incluso wikipedia.org o marca.com) sigue bloqueado por la política de red de este entorno (EGRESS_BLOCKED), y las búsquedas indirectas dan datos contradictorios entre sí sobre el orden exacto del boleto, los horarios y hasta la división de algún partido, así que no hay garantías suficientes para cargar el boleto, el público, las cuotas ni las bajas sin arriesgarme a inventar datos. Además la ventana de apuestas de la jornada 3 ya cerró (29 de agosto) y la jornada 4 todavía no está publicada, así que no hay jornada vigente que cargar en este momento. Por la misma razón de bloqueo de red siguen sin poder confirmarse con una fuente fiable las dos últimas categorías (11 y 10 aciertos) del escrutinio de la Jornada 2. Córdoba-Granada y Osasuna-Getafe, de la jornada 3, aún no se habían disputado en el momento de esta actualización.";
+const DATOS_ACTUALIZADO = "2026-08-30";  // Completada casi toda la jornada 3 de Primera y sumados tres resultados de Segunda
+const DATOS_PENDIENTE = "Se han confirmado con varias fuentes coincidentes y con detalle (goleadores, minutos, asistencia) seis resultados más de la jornada 3: en Primera, Alavés 1-0 Villarreal, Racing 3-2 Elche, Celta 0-2 Athletic y Deportivo 3-1 Valencia; en Segunda, Córdoba 1-3 Granada, Tenerife 0-1 Sporting de Gijón y Sabadell 1-0 Almería. Con esto la jornada 3 de Primera queda completa salvo Osasuna-Getafe y Barcelona-Rayo Vallecano, que se juegan el lunes 31 de agosto. La jornada 3 de la Quiniela (boleto de 15 partidos, con la novedad de hasta 4 partidos de Liga F por primera vez en la historia del concurso, bote de 1.300.000 €) sigue sin poder cargarse en JORNADAS: el acceso directo a las páginas del boleto (loteriasyapuestas.es, laquiniela.es, libertaddigital.com, casasdeapuestas.com, eduardolosilla.es) sigue bloqueado por la política de red de este entorno, y las búsquedas indirectas solo confirman 9 de los 15 partidos (Levante-Betis, Real Sociedad-Espanyol, Sevilla-Atlético, Real Madrid-Málaga, Barcelona-Rayo, Deportivo-Valencia, Córdoba-Granada, Osasuna-Getafe y Albacete-Real Oviedo) y dan versiones contradictorias entre sí sobre cuáles son exactamente los partidos de Liga F y el orden oficial del boleto, así que cargarlo ahora supondría arriesgarse a inventar el pleno al 15 o el orden. Tampoco hay pub%, cuotas completas ni bajas fiables para esos 15 partidos. Por el mismo bloqueo de red siguen sin poder confirmarse las dos últimas categorías (11 y 10 aciertos) del escrutinio de la Jornada 2; sí se ha confirmado que su pleno al 15 quedó desierto, generando el bote de 1.300.000 € para la jornada 3. El resto de la jornada 3 de Segunda (Albacete-Oviedo entre otros) tiene datos contradictorios entre fuentes y se ha dejado fuera hasta poder confirmarlo.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -414,11 +414,19 @@ const RESULTADOS = [
   { jor: 2, l: "albacete", v: "rsociedadb", gl: 1, gv: 2 },
   { jor: 2, l: "granada", v: "mallorca", gl: 2, gv: 0 },
   { jor: 2, l: "celtaf", v: "andorra", gl: 4, gv: 2 },
-  // Primera, jornada 3 (partidos ya disputados y confirmados; el resto de la jornada 3 sigue en juego)
+  // Primera, jornada 3 (quedan pendientes Osasuna-Getafe y Barcelona-Rayo, lunes 31 de agosto)
   { jor: 3, l: "levante", v: "betis", gl: 5, gv: 2 },
   { jor: 3, l: "rsociedad", v: "espanyol", gl: 2, gv: 1 },
   { jor: 3, l: "sevilla", v: "atmadrid", gl: 1, gv: 3 }, // doblete de Baena y gol de Lookman, 29 de agosto
-  { jor: 3, l: "rmadrid", v: "malaga", gl: 4, gv: 0 } // Bellingham, gol en propia de Herrero, Mbappé y Güler, 30 de agosto
+  { jor: 3, l: "rmadrid", v: "malaga", gl: 4, gv: 0 }, // Bellingham, gol en propia de Herrero, Mbappé y Güler, 30 de agosto
+  { jor: 3, l: "alaves", v: "villarreal", gl: 1, gv: 0 }, // gol de Lucas Boyé, 28 de agosto
+  { jor: 3, l: "racing", v: "elche", gl: 3, gv: 2 }, // hat-trick de Zabiri, 28 de agosto
+  { jor: 3, l: "celta", v: "athletic", gl: 0, gv: 2 }, // goles de Berenguer y Robert Navarro, 30 de agosto
+  { jor: 3, l: "deportivo", v: "valencia", gl: 3, gv: 1 }, // Ximo Navarro, Aubameyang y en propia de Diakhaby, 30 de agosto
+  // Segunda, jornada 3 (parcial)
+  { jor: 3, l: "cordoba", v: "granada", gl: 1, gv: 3 }, // el Granada remonta en el derbi andaluz, 30 de agosto
+  { jor: 3, l: "tenerife", v: "sporting", gl: 0, gv: 1 }, // 28 de agosto
+  { jor: 3, l: "sabadell", v: "almeria", gl: 1, gv: 0 } // gol de Gioacchini, 29 de agosto
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
