@@ -217,7 +217,7 @@ const SIGNOS = ["1", "X", "2"];
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
 const DATOS_ACTUALIZADO = "2026-09-05";
-const DATOS_PENDIENTE = "La jornada 4 incluye cuatro partidos de Liga F y esos equipos no tienen ningun resultado registrado: su pronostico es solo una estimacion de nivel. Faltan las cuotas de mercado y el parte de bajas de esta jornada, y los resultados de la jornada 3 de la Quiniela.";
+const DATOS_PENDIENTE = "Faltan por confirmar los resultados de Rayo-Racing y Villarreal-Deportivo (jornada 4, jugados el 5 de septiembre). No se ha revisado el parte de bajas de los 4 equipos de Liga F de esta jornada, por eso no lleva parte:true. Faltan las cuotas de Almeria-Cadiz, Sporting-Girona y de los 4 partidos de futbol femenino: las fuentes daban cifras contradictorias o no las publican. El horario de Logrono F-Athletic F aparece como 18:30 en el boleto pero varias fuentes alternativas dicen 10:00; se mantiene sin confirmar. El historial Athletic-Atletico se descarta por datos contradictorios entre fuentes. El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -381,21 +381,64 @@ const JORNADAS = [
   },
   {
     nombre: "Jornada 4", fecha: "2026-09-05", partidos: [
-      { l: "athletic", v: "atmadrid", h: "sáb 16:15" },
-      { l: "rayo", v: "racing", h: "sáb 18:30" },
-      { l: "villarreal", v: "deportivo", h: "sáb 21:00" },
-      { l: "valencia", v: "barcelona", h: "dom 16:15" },
-      { l: "alaves", v: "osasuna", h: "dom 18:30" },
-      { l: "malaga", v: "levante", h: "dom 18:30" },
-      { l: "espanyol", v: "sevilla", h: "dom 21:00" },
-      { l: "rsociedadb", v: "tenerife", h: "sáb 14:00" },
-      { l: "sporting", v: "girona", h: "sáb 16:15" },
-      { l: "almeria", v: "cadiz", h: "dom 21:00" },
+      {
+        l: "athletic", v: "atmadrid", h: "sáb 16:15", pub: [23, 21, 56], cuo: { c1: 2.85, cX: 3.45, c2: 2.40 },
+        L: { bajas: [["Dani Vivian", "lesion", 4], ["Nico Serrano", "lesion", 3], ["Unai Egiluz", "lesion", 2], ["Álvaro Djaló", "lesion", 2], ["Peio Canales", "lesion", 2]] },
+        V: { amb: -1, bajas: [["Alexander Sørloth", "lesion", 4]] }
+      },
+      {
+        l: "rayo", v: "racing", h: "sáb 18:30", pub: [52, 25, 23], cuo: { c1: 2.35, cX: 3.55, c2: 3.40 },
+        L: { bajas: [["Isi Palazón", "lesion", 5], ["Luiz Felipe", "lesion", 3], ["Augusto Batalla", "lesion", 2], ["Jozhua Vertrouwd", "lesion", 2], ["Marash Kumbulla", "duda", 2]] },
+        V: { bajas: [["Andrés Martín", "lesion", 4], ["Pedro Felipe", "lesion", 3], ["Pablo Ramón", "lesion", 3], ["Iker Luque", "sancion", 3]] }
+      },
+      {
+        l: "villarreal", v: "deportivo", h: "sáb 21:00", pub: [79, 11, 10], cuo: { c1: 1.50, cX: 4.30, c2: 6.00 },
+        L: { bajas: [["Juan Foyth", "duda", 3]] },
+        V: { bajas: [["Adrià Altimira", "sancion", 3], ["Noé Carrillo", "lesion", 2], ["David Mella", "lesion", 3], ["Miguel Loureiro", "lesion", 2], ["Jonathan Asp Jensen", "lesion", 2]] }
+      },
+      {
+        l: "valencia", v: "barcelona", h: "dom 16:15", pub: [9, 12, 79], cuo: { c1: 7.50, cX: 5.28, c2: 1.44 },
+        L: { amb: -1, bajas: [["Umar Sadiq", "lesion", 3], ["José Copete", "lesion", 3], ["Justin de Haas", "lesion", 2], ["Luis Rioja", "duda", 3]] },
+        V: { bajas: [["Roony Bardghji", "lesion", 3], ["Frenkie de Jong", "lesion", 4], ["Gavi", "duda", 4]] }
+      },
+      {
+        l: "alaves", v: "osasuna", h: "dom 18:30", pub: [38, 45, 17], cuo: { c1: 2.27, cX: 3.09, c2: 3.39 },
+        L: { bajas: [["Mikel Rodríguez", "lesion", 3], ["Toni Martínez", "duda", 3], ["Facundo Garcés", "sancion", 4]] },
+        V: { bajas: [["Jorge Herrando", "lesion", 3], ["Aimar Oroz", "lesion", 4], ["Valentín Rosier", "duda", 3]] }
+      },
+      {
+        l: "malaga", v: "levante", h: "dom 18:30", pub: [48, 28, 24], cuo: { c1: 2.50, cX: 3.35, c2: 3.20 },
+        L: { bajas: [["Adrián Niño", "lesion", 3], ["Fernando Calero", "lesion", 3], ["Aaron Ochoa", "lesion", 2], ["Diego Murillo", "lesion", 2], ["Moussa Diarra", "lesion", 2]] },
+        V: { amb: 1, bajas: [["Álex Primo", "lesion", 3]] }
+      },
+      {
+        l: "espanyol", v: "sevilla", h: "dom 21:00", pub: [32, 39, 29], cuo: { c1: 2.35, cX: 3.33, c2: 3.20 },
+        L: { bajas: [["Javi Puado", "lesion", 4], ["Kike García", "lesion", 3], ["Andoni Gorosabel", "duda", 2]] },
+        V: { bajas: [["Rubén Vargas", "lesion", 3]] }
+      },
+      {
+        l: "rsociedadb", v: "tenerife", h: "sáb 14:00", pub: [22, 27, 51], cuo: { c1: 2.55, cX: 3.25, c2: 3.00 },
+        V: { bajas: [["Neal Viereck", "lesion", 3], ["Grant-Leon Ranos", "duda", 2], ["Alassan", "lesion", 2]] }
+      },
+      {
+        l: "sporting", v: "girona", h: "sáb 16:15", pub: [41, 31, 28],
+        L: { amb: 2, bajas: [["Andrés Ferrari", "lesion", 3], ["Hugo Guillamón", "lesion", 2], ["Gaspar Campos", "lesion", 2], ["Manu Rodríguez", "lesion", 2]] },
+        V: { bajas: [["Portu", "lesion", 3], ["Jastin García", "lesion", 2], ["Unai Hernández", "duda", 2]] }
+      },
+      {
+        l: "almeria", v: "cadiz", h: "dom 21:00", pub: [67, 22, 11],
+        L: { bajas: [["Sergio Arribas", "duda", 4]] },
+        V: { bajas: [["Thalys", "sancion", 3], ["Nico Melamed", "lesion", 3], ["Gui Guedes", "lesion", 2], ["Iuri Tabatadze", "lesion", 2], ["Gonzalo Petit", "duda", 2], ["Aïmen Moueffek", "duda", 2]] }
+      },
       { l: "sevillaf", v: "barcelonaf", h: "sáb 20:30" },
-      { l: "logronof", v: "athleticf", h: "dom 18:30" },
-      { l: "atmadridf", v: "alavesf", h: "dom 12:00" },
-      { l: "rmadridf", v: "eibarf", h: "dom 20:30" },
-      { l: "getafe", v: "celta", h: "lun 19:00" }
+      { l: "logronof", v: "athleticf", h: "dom 18:30", pub: [12, 11, 77] },
+      { l: "atmadridf", v: "alavesf", h: "dom 12:00", pub: [78, 12, 10] },
+      { l: "rmadridf", v: "eibarf", h: "dom 20:30", pub: [84, 7, 9] },
+      {
+        l: "getafe", v: "celta", h: "lun 19:00", pub: [12, 62, 24], cuo: { c1: 2.79, cX: 3.00, c2: 3.11 },
+        L: { bajas: [["Christantus Uche", "lesion", 4], ["Juanmi Jiménez", "lesion", 2], ["Abdel Abqar", "duda", 3]] },
+        V: { bajas: [["Borja Iglesias", "duda", 4], ["Aleix Febas", "lesion", 2]] }
+      }
     ]
   }
 ];
@@ -473,7 +516,11 @@ const RESULTADOS = [
   { jor: 3, l: "leganes", v: "eldense", gl: 1, gv: 0 }, // gol de Atienza en el 89', 29 de agosto
   // Primera, jornada 3 (últimos dos aplazados, jugados el lunes 31 de agosto)
   { jor: 3, l: "osasuna", v: "getafe", gl: 1, gv: 0 }, // penalti de Budimir en el 45', 31 de agosto
-  { jor: 3, l: "barcelona", v: "rayo", gl: 5, gv: 2 } // 31 de agosto, con goles de Raphinha y Yamal
+  { jor: 3, l: "barcelona", v: "rayo", gl: 5, gv: 2 }, // 31 de agosto, con goles de Raphinha y Yamal
+  // Jornada 4 (fin de semana del 5-7 de septiembre)
+  { jor: 4, l: "athletic", v: "atmadrid", gl: 3, gv: 0 }, // Nico Williams, Robert Navarro y Sancet, 5 de septiembre en San Mamés
+  { jor: 4, l: "rsociedadb", v: "tenerife", gl: 1, gv: 1 }, // gol de Enric Gallego para el Tenerife, 5 de septiembre
+  { jor: 4, l: "sporting", v: "girona", gl: 0, gv: 2 } // goles de Asprilla y Carles Pérez, 5 de septiembre en El Molinón
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
@@ -492,7 +539,16 @@ const H2H_HISTORICO = [
   { l: "eldense", v: "cadiz", n: 6, g1: 4, gx: 1, g2: 1, nota: "en el Pepico Amat, en Segunda, desde 1956" },
   { l: "eibar", v: "valladolid", n: 6, g1: 3, gx: 0, g2: 3, nota: "en Ipurua, solo los duelos de Segunda División" },
   { l: "sporting", v: "burgos", n: 20, g1: 13, gx: 5, g2: 2, nota: "en El Molinón, todas las competiciones" },
-  { l: "tenerife", v: "almeria", n: 17, g1: 6, gx: 6, g2: 5, nota: "en el Heliodoro, todas las competiciones desde 1958" }
+  { l: "tenerife", v: "almeria", n: 17, g1: 6, gx: 6, g2: 5, nota: "en el Heliodoro, todas las competiciones desde 1958" },
+  { l: "rayo", v: "racing", n: 27, g1: 16, gx: 5, g2: 6, nota: "en el campo del Rayo, histórico entre ambos clubes" },
+  { l: "villarreal", v: "deportivo", n: 17, g1: 7, gx: 5, g2: 5, nota: "en La Cerámica, todas las competiciones" },
+  { l: "valencia", v: "barcelona", n: 91, g1: 31, gx: 23, g2: 37, nota: "en Liga, en Mestalla" },
+  { l: "alaves", v: "osasuna", n: 30, g1: 12, gx: 5, g2: 13, nota: "en Mendizorroza, todas las competiciones" },
+  { l: "malaga", v: "levante", n: 8, g1: 6, gx: 2, g2: 0, nota: "en Primera División, en La Rosaleda (el Levante nunca ha ganado allí)" },
+  { l: "espanyol", v: "sevilla", n: 24, g1: 8, gx: 4, g2: 12, nota: "en el RCDE Stadium, todas las competiciones" },
+  { l: "rsociedadb", v: "tenerife", n: 6, g1: 2, gx: 1, g2: 3, nota: "únicos precedentes históricos filial-Tenerife, en distintas categorías desde 1970" },
+  { l: "sporting", v: "girona", n: 11, g1: 9, gx: 2, g2: 0, nota: "en El Molinón, todas las competiciones (el Girona nunca ha ganado allí)" },
+  { l: "getafe", v: "celta", n: 13, g1: 8, gx: 3, g2: 2, nota: "en Primera División, en el Coliseum" }
 ];
 
 // Escrutinio oficial de cada jornada: lo que se recaudó, lo que se pagó y el bote que arrastra.
@@ -521,10 +577,22 @@ const PREMIOS = [
       ["12 aciertos", 448, 409.70],
       ["Elige 8", 32, 1406.11]
     ]
+  },
+  {
+    // 10 aciertos sin confirmar todavia: se conoce el numero de acertantes (100.155)
+    // pero no el importe exacto por boleto; no se incluye esa categoria para no inventar la cifra.
+    jornada: "Jornada 3", recaudacion: 2585853.75, bote: 1500000.00,
+    categorias: [
+      ["Pleno al 15", 0, 0],
+      ["14 aciertos", 10, 41373.66],
+      ["13 aciertos", 339, 53.87],
+      ["12 aciertos", 3600, 8.20],
+      ["11 aciertos", 23645, 2.32]
+    ]
   }
 ];
 // Bote anunciado para la jornada que está en juego (0 si no hay).
-const BOTE_ACTUAL = 1300000.00;
+const BOTE_ACTUAL = 1500000.00;
 
 const AJ = {
   mediaD1: 1.35, mediaD2: 1.15, mediaD3: 1.55, ventajaLocal: 1.12,
