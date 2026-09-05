@@ -217,7 +217,7 @@ const SIGNOS = ["1", "X", "2"];
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
 const DATOS_ACTUALIZADO = "2026-09-05";
-const DATOS_PENDIENTE = "Faltan por confirmar los resultados de Rayo-Racing y Villarreal-Deportivo (jornada 4, jugados el 5 de septiembre). No se ha revisado el parte de bajas de los 4 equipos de Liga F de esta jornada, por eso no lleva parte:true. Faltan las cuotas de Almeria-Cadiz, Sporting-Girona y de los 4 partidos de futbol femenino: las fuentes daban cifras contradictorias o no las publican. El horario de Logrono F-Athletic F aparece como 18:30 en el boleto pero varias fuentes alternativas dicen 10:00; se mantiene sin confirmar. El historial Athletic-Atletico se descarta por datos contradictorios entre fuentes. El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2.";
+const DATOS_PENDIENTE = "Faltan las cuotas de Almeria-Cadiz (aun sin jugar) y de los 3 partidos de futbol femenino que quedan por disputar (Logrono F-Athletic F, Atletico Madrid F-Alaves F, Real Madrid F-Eibar F): las fuentes daban cifras contradictorias o no las publican. No se ha revisado el parte de bajas de los 4 equipos de Liga F de esta jornada, por eso no lleva parte:true. El horario de Logrono F-Athletic F aparece como 18:30 en el boleto pero varias fuentes alternativas dicen 10:00; se mantiene sin confirmar. El historial Almeria-Cadiz en el campo del Almeria se descarta por cifras contradictorias entre fuentes (entre 25 y 31 duelos totales segun la fuente, sin desglose fiable por estadio). El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -520,7 +520,10 @@ const RESULTADOS = [
   // Jornada 4 (fin de semana del 5-7 de septiembre)
   { jor: 4, l: "athletic", v: "atmadrid", gl: 3, gv: 0 }, // Nico Williams, Robert Navarro y Sancet, 5 de septiembre en San Mamés
   { jor: 4, l: "rsociedadb", v: "tenerife", gl: 1, gv: 1 }, // gol de Enric Gallego para el Tenerife, 5 de septiembre
-  { jor: 4, l: "sporting", v: "girona", gl: 0, gv: 2 } // goles de Asprilla y Carles Pérez, 5 de septiembre en El Molinón
+  { jor: 4, l: "sporting", v: "girona", gl: 0, gv: 2 }, // goles de Asprilla y Carles Pérez, 5 de septiembre en El Molinón
+  { jor: 4, l: "rayo", v: "racing", gl: 3, gv: 2 }, // remontada con doblete de Camello, 5 de septiembre en Butarque
+  { jor: 4, l: "villarreal", v: "deportivo", gl: 2, gv: 3 }, // remontada del Depor con doblete de Aubameyang (gol y asistencia) en La Cerámica, 5 de septiembre
+  { jor: 4, l: "sevillaf", v: "barcelonaf", gl: 0, gv: 4 } // goles de Brugts, Pina, Torrejón y Vicky López, 5 de septiembre en el Jesús Navas
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
