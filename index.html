@@ -89,6 +89,7 @@ h3.sub2{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:upper
 .divb{font-family:var(--f-num);font-size:9.5px;font-weight:700;border-radius:3px;padding:1px 4px;text-align:center;border:1px solid var(--line)}
 .divb.d1{background:var(--accsoft);color:var(--acc);border-color:var(--acc)}
 .divb.d2{background:var(--panel3);color:var(--ink2)}
+.divb.d3{background:var(--panel3);color:var(--sx);border-color:var(--sx)}
 .fila .eq{display:flex;flex-direction:column;gap:0;min-width:0}
 .fila .eq b{font-size:13.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fila .eq span{font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -215,8 +216,8 @@ const SIGNOS = ["1", "X", "2"];
    ║  BLOQUE DE DATOS — lo mantiene Claude. El usuario no edita nada aquí.    ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
-const DATOS_ACTUALIZADO = "2026-08-31";  // Jornada 3 de Primera y Segunda ya completa en RESULTADOS
-const DATOS_PENDIENTE = "La jornada 3 de Liga queda completa: se han sumado Osasuna 1-0 Getafe y Barcelona 5-2 Rayo Vallecano (los dos aplazados de Primera, jugados el lunes 31 de agosto) y los ocho partidos de Segunda que faltaban (Albacete 0-1 Oviedo, Girona 5-2 Las Palmas, Andorra 0-1 Eibar, Cádiz 1-1 Valladolid, Mallorca 3-0 Ceuta, Burgos 2-2 Real Sociedad B, Celta Fortuna 1-2 Castellón y Leganés 1-0 Eldense). La jornada 4 de la Quiniela ya está en juego (cierre el 5 de septiembre a las 14:00, con el bote de 1.300.000 € de la jornada 2 sin repartir, así que sigue arrastrándose) pero sigue sin poder cargarse en JORNADAS: el acceso directo a todas las páginas con el boleto oficial y las cuotas (loteriasyapuestas.es, laquiniela.es, libertaddigital.com, casasdeapuestas.com, eduardolosilla.es, quiniela15.com, elquinielista.com, tulotero.es, oddschecker.com) sigue bloqueado por la política de red de este entorno, y las búsquedas indirectas no dan ni el orden oficial de los 15 partidos ni cuotas 1X2 fiables, así que cargarla ahora supondría arriesgarse a inventar el pleno al 15 o el orden del boleto. Por el mismo bloqueo siguen sin poder confirmarse las dos últimas categorías (11 y 10 aciertos) del escrutinio de la Jornada 2. El escrutinio de la Jornada 3 todavía no está publicado (los partidos acaban de terminar).";
+const DATOS_ACTUALIZADO = "2026-09-05";
+const DATOS_PENDIENTE = "La jornada 4 incluye cuatro partidos de Liga F y esos equipos no tienen ningun resultado registrado: su pronostico es solo una estimacion de nivel. Faltan las cuotas de mercado y el parte de bajas de esta jornada, y los resultados de la jornada 3 de la Quiniela.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -263,7 +264,23 @@ const EQUIPOS_SEMILLA = [
   ["tenerife", "Tenerife", 2, 0.95, 1.25, "cdtenerife"],
   ["eldense", "Eldense", 2, 1.00, 1.28, "cdeldense,elda"],
   ["sabadell", "Sabadell", 2, 0.85, 1.40, "cesabadell"],
-  ["celtaf", "Celta Fortuna", 2, 0.95, 1.35, "celtafortuna,fortuna"]
+  ["celtaf", "Celta Fortuna", 2, 0.95, 1.35, "celtafortuna,fortuna"],
+
+  /* Liga F (division 3). La Quiniela incluye desde la jornada 3 partidos de futbol
+     femenino. Estos niveles de partida son una ESTIMACION y no hay ningun resultado
+     real cargado: estos pronosticos valen mucho menos que los de Primera y Segunda. */
+  ["barcelonaf", "Barcelona F", 3, 2.90, 0.55, "barcelonaf,barcaf"],
+  ["rmadridf", "Real Madrid F", 3, 2.10, 0.85, "rmadridf,realmadridf"],
+  ["atmadridf", "Atletico Madrid F", 3, 1.85, 0.95, "atmadridf,atleticof"],
+  ["levantef", "Levante Badalona", 3, 1.35, 1.35, "levantebadalona,badalonaf,badalonaw"],
+  ["athleticf", "Athletic Club F", 3, 1.30, 1.30, "athleticf,athclubf"],
+  ["realsociedadf", "Real Sociedad F", 3, 1.30, 1.30, "rsociedadf"],
+  ["sevillaf", "Sevilla F", 3, 1.15, 1.50, "sevillaf"],
+  ["valenciaf", "Valencia F", 3, 1.20, 1.45, "valenciaf"],
+  ["espanyolf", "Espanyol F", 3, 1.05, 1.60, "espanyolf"],
+  ["alavesf", "Alaves F", 3, 1.00, 1.70, "alavesf"],
+  ["eibarf", "Eibar F", 3, 0.90, 1.85, "eibarf"],
+  ["logronof", "Logrono F", 3, 0.95, 1.75, "logronof,ediflogrono"]
 ];
 
 // Jornadas de La Quiniela. La última de la lista es la que se abre por defecto.
@@ -360,6 +377,25 @@ const JORNADAS = [
         L: { amb: 1, mot: 1, bajas: [["Alexander Sørloth", "duda", 4]] },
         V: { amb: 0, mot: 1, bajas: [["Logan Costa", "lesion", 3], ["Alassane Diatta", "sancion", 1]] }
       }
+    ]
+  },
+  {
+    nombre: "Jornada 4", fecha: "2026-09-05", partidos: [
+      { l: "athletic", v: "atmadrid", h: "sáb 16:15" },
+      { l: "rayo", v: "racing", h: "sáb 18:30" },
+      { l: "villarreal", v: "deportivo", h: "sáb 21:00" },
+      { l: "valencia", v: "barcelona", h: "dom 16:15" },
+      { l: "alaves", v: "osasuna", h: "dom 18:30" },
+      { l: "malaga", v: "levante", h: "dom 18:30" },
+      { l: "espanyol", v: "sevilla", h: "dom 21:00" },
+      { l: "rsociedadb", v: "tenerife", h: "sáb 14:00" },
+      { l: "sporting", v: "girona", h: "sáb 16:15" },
+      { l: "almeria", v: "cadiz", h: "dom 21:00" },
+      { l: "sevillaf", v: "barcelonaf", h: "sáb 20:30" },
+      { l: "logronof", v: "athleticf", h: "dom 18:30" },
+      { l: "atmadridf", v: "alavesf", h: "dom 12:00" },
+      { l: "rmadridf", v: "eibarf", h: "dom 20:30" },
+      { l: "getafe", v: "celta", h: "lun 19:00" }
     ]
   }
 ];
@@ -491,7 +527,7 @@ const PREMIOS = [
 const BOTE_ACTUAL = 1300000.00;
 
 const AJ = {
-  mediaD1: 1.35, mediaD2: 1.15, ventajaLocal: 1.12,
+  mediaD1: 1.35, mediaD2: 1.15, mediaD3: 1.55, ventajaLocal: 1.12,
   pesoMercado: 0.45, pesoH2H: 0.10, rho: -0.10, expo: 0.97, kPrior: 6, precioColumna: 0.75
 };
 
@@ -504,7 +540,7 @@ EQUIPOS_SEMILLA.forEach(t => { EQUIPOS[t[0]] = { nombre: t[1], div: t[2], pAtk: 
 const eq = id => EQUIPOS[id] || null;
 const nombre = id => (EQUIPOS[id] ? EQUIPOS[id].nombre : "—");
 const divDe = id => (EQUIPOS[id] ? EQUIPOS[id].div : 1);
-const mediaDiv = d => (d === 2 ? AJ.mediaD2 : AJ.mediaD1);
+const mediaDiv = d => (d === 3 ? AJ.mediaD3 : d === 2 ? AJ.mediaD2 : AJ.mediaD1);
 const idsDiv = d => Object.keys(EQUIPOS).filter(k => EQUIPOS[k].div === d);
 
 const CTX_DEF = { amb: 0, mot: 0, desc: 7, eur: false, bajas: [] };
@@ -1067,7 +1103,7 @@ function vBoleto() {
     }
     return '<div class="fila' + (pleno ? " pleno" : "") + clase + '" role="button" tabindex="0" data-a="abrir" data-pid="' + p.id + '">' +
       '<div class="idx">' + (pleno ? "P15" : i + 1) + "</div>" +
-      '<div class="divb d' + d + '">' + (d === 1 ? "1ª" : "2ª") + "</div>" +
+      '<div class="divb d' + d + '">' + (d === 3 ? "F" : d === 1 ? "1ª" : "2ª") + "</div>" +
       '<div class="eq"><b>' + esc(nombre(p.l)) + "</b><span>" + esc(nombre(p.v)) + "</span></div>" +
       '<div class="hora">' + (p.h ? "<b>" + esc(String(p.h).split(" ")[0]) + "</b>" + esc(String(p.h).split(" ").slice(1).join(" ")) : "—") + "</div>" +
       barra(c.p) +
