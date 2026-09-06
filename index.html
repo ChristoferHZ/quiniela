@@ -217,7 +217,7 @@ const SIGNOS = ["1", "X", "2"];
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
 const DATOS_ACTUALIZADO = "2026-09-06";
-const DATOS_PENDIENTE = "De la Jornada 4 quedan por confirmar Alaves-Osasuna, Malaga-Levante, Espanyol-Sevilla y Almeria-Cadiz (jugados el 6 de septiembre pero sin marcador final fiable en las fuentes consultadas), Getafe-Celta (se juega el lunes 7) y Logrono F-Athletic F y Real Madrid F-Eibar F de Liga F (fuentes contradictorias sobre su resultado). Faltan tambien las cuotas de Almeria-Cadiz y de los 3 partidos de Liga F que aun no se han podido cargar. El boleto oficial de la Jornada 5 de la Quiniela todavia no esta publicado (se espera a partir del 8-9 de septiembre), asi que no se ha podido anadir. El historial Almeria-Cadiz en el campo del Almeria se descarta por cifras contradictorias entre fuentes. El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2.";
+const DATOS_PENDIENTE = "De la Jornada 4 falta Getafe-Celta (se juega el lunes 7 de septiembre) y el resultado de Real Madrid F-Eibar F de Liga F, con marcadores contradictorios segun la fuente (0-0, 0-3 y 3-0), asi que se ha descartado por prudencia. Faltan tambien las cuotas de Almeria-Cadiz y de los 4 partidos de Liga F de esta jornada, que ninguna fuente consultada publica. La Jornada 5 de la Quiniela ya tiene boleto abierto (cierre anunciado el 8 de septiembre a las 21:00) pero no ha sido posible reconstruir con garantias el listado completo y ordenado de los 15 partidos con sus horarios y porcentajes desde aqui, asi que queda para la proxima actualizacion. El historial Almeria-Cadiz en el campo del Almeria se descarta por cifras contradictorias entre fuentes. El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2. El escrutinio de la Jornada 4 no esta disponible todavia porque falta Getafe-Celta.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -525,7 +525,12 @@ const RESULTADOS = [
   { jor: 4, l: "villarreal", v: "deportivo", gl: 2, gv: 3 }, // remontada del Depor con doblete de Aubameyang (gol y asistencia) en La Cerámica, 5 de septiembre
   { jor: 4, l: "sevillaf", v: "barcelonaf", gl: 0, gv: 4 }, // goles de Brugts, Pina, Torrejón y Vicky López, 5 de septiembre en el Jesús Navas
   { jor: 4, l: "valencia", v: "barcelona", gl: 0, gv: 5 }, // doblete de Lamine Yamal, Raphinha, Pedri y Fermín López, 6 de septiembre en Mestalla
-  { jor: 4, l: "atmadridf", v: "alavesf", gl: 1, gv: 0 } // gol de Synne Jensen en el 91', 6 de septiembre en el Cívitas Alcalá de Henares
+  { jor: 4, l: "atmadridf", v: "alavesf", gl: 1, gv: 0 }, // gol de Synne Jensen en el 91', 6 de septiembre en el Cívitas Alcalá de Henares
+  { jor: 4, l: "alaves", v: "osasuna", gl: 5, gv: 2 }, // hat-trick de Lucas Boyé y gol de Mariano e Ibáñez, doblete de Budimir para Osasuna, 6 de septiembre en Mendizorroza
+  { jor: 4, l: "malaga", v: "levante", gl: 0, gv: 0 }, // penalti fallado por el Málaga, 6 de septiembre en La Rosaleda
+  { jor: 4, l: "espanyol", v: "sevilla", gl: 1, gv: 1 }, // roja a Arouna Sangante (56'), gol de Stassin (85') y empate de Marcos Fernández en el descuento, 6 de septiembre en el RCDE Stadium
+  { jor: 4, l: "almeria", v: "cadiz", gl: 3, gv: 2 }, // goles de Javi Muñoz, De la Fuente y Baptistão para el Almería, Javi Castro y un gol en propia para el Cádiz, 6 de septiembre
+  { jor: 4, l: "logronof", v: "athleticf", gl: 0, gv: 1 } // gol de Maddi Torre en el 33', el Athletic jugó con 10 desde el 14', 6 de septiembre en Las Gaunas
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
