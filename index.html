@@ -216,8 +216,8 @@ const SIGNOS = ["1", "X", "2"];
    ║  BLOQUE DE DATOS — lo mantiene Claude. El usuario no edita nada aquí.    ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
-const DATOS_ACTUALIZADO = "2026-09-06";
-const DATOS_PENDIENTE = "De la Jornada 4 falta Getafe-Celta (se juega el lunes 7 de septiembre) y el resultado de Real Madrid F-Eibar F de Liga F, con marcadores contradictorios segun la fuente (0-0, 0-3 y 3-0), asi que se ha descartado por prudencia. Faltan tambien las cuotas de Almeria-Cadiz y de los 4 partidos de Liga F de esta jornada, que ninguna fuente consultada publica. La Jornada 5 de la Quiniela ya tiene boleto abierto (cierre anunciado el 8 de septiembre a las 21:00) pero no ha sido posible reconstruir con garantias el listado completo y ordenado de los 15 partidos con sus horarios y porcentajes desde aqui, asi que queda para la proxima actualizacion. El historial Almeria-Cadiz en el campo del Almeria se descarta por cifras contradictorias entre fuentes. El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2. El escrutinio de la Jornada 4 no esta disponible todavia porque falta Getafe-Celta.";
+const DATOS_ACTUALIZADO = "2026-09-07";
+const DATOS_PENDIENTE = "La Jornada 4 ya tiene sus 15 resultados confirmados: Getafe 0-0 Celta (con expulsion de Arambarri en el 82' y gol anulado al Getafe en el 77') y Real Madrid F 0-0 Eibar F, los dos ultimos que faltaban, se han anadido en esta actualizacion. El escrutinio oficial de la Jornada 4 todavia no esta publicado. La Jornada 5 de la Quiniela ya tiene boleto abierto, pero las fuentes consultadas dan versiones contradictorias sobre sus 15 partidos (unas apuntan a una jornada con partidos de la Champions League entre semana, otras a la jornada normal de Liga del fin de semana del 12-14 de septiembre) y no ha sido posible reconstruir con garantias el listado oficial, el orden del boleto ni los horarios, asi que queda para la proxima actualizacion. El historial Almeria-Cadiz en el campo del Almeria se descarta por cifras contradictorias entre fuentes. El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -530,7 +530,9 @@ const RESULTADOS = [
   { jor: 4, l: "malaga", v: "levante", gl: 0, gv: 0 }, // penalti fallado por el Málaga, 6 de septiembre en La Rosaleda
   { jor: 4, l: "espanyol", v: "sevilla", gl: 1, gv: 1 }, // roja a Arouna Sangante (56'), gol de Stassin (85') y empate de Marcos Fernández en el descuento, 6 de septiembre en el RCDE Stadium
   { jor: 4, l: "almeria", v: "cadiz", gl: 3, gv: 2 }, // goles de Javi Muñoz, De la Fuente y Baptistão para el Almería, Javi Castro y un gol en propia para el Cádiz, 6 de septiembre
-  { jor: 4, l: "logronof", v: "athleticf", gl: 0, gv: 1 } // gol de Maddi Torre en el 33', el Athletic jugó con 10 desde el 14', 6 de septiembre en Las Gaunas
+  { jor: 4, l: "logronof", v: "athleticf", gl: 0, gv: 1 }, // gol de Maddi Torre en el 33', el Athletic jugó con 10 desde el 14', 6 de septiembre en Las Gaunas
+  { jor: 4, l: "rmadridf", v: "eibarf", gl: 0, gv: 0 }, // dominio total del Real Madrid sin puntería, 6 de septiembre en el Di Stéfano
+  { jor: 4, l: "getafe", v: "celta", gl: 0, gv: 0 } // roja a Arambarri (82') y gol anulado al Getafe (77'), 7 de septiembre en el Coliseum
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
