@@ -217,7 +217,7 @@ const SIGNOS = ["1", "X", "2"];
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 
 const DATOS_ACTUALIZADO = "2026-09-07";
-const DATOS_PENDIENTE = "La Jornada 4 ya tiene sus 15 resultados confirmados: Getafe 0-0 Celta (con expulsion de Arambarri en el 82' y gol anulado al Getafe en el 77') y Real Madrid F 0-0 Eibar F, los dos ultimos que faltaban, se han anadido en esta actualizacion. El escrutinio oficial de la Jornada 4 todavia no esta publicado. La Jornada 5 de la Quiniela ya tiene boleto abierto, pero las fuentes consultadas dan versiones contradictorias sobre sus 15 partidos (unas apuntan a una jornada con partidos de la Champions League entre semana, otras a la jornada normal de Liga del fin de semana del 12-14 de septiembre) y no ha sido posible reconstruir con garantias el listado oficial, el orden del boleto ni los horarios, asi que queda para la proxima actualizacion. El historial Almeria-Cadiz en el campo del Almeria se descarta por cifras contradictorias entre fuentes. El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2.";
+const DATOS_PENDIENTE = "Con esta actualizacion quedan completos los 10 partidos de Primera y los 11 de Segunda de la Jornada 4 real de Liga (se anaden Betis 1-0 Real Madrid, Elche 2-3 Real Sociedad, Las Palmas 0-0 Leganes, Eldense 0-0 Mallorca, Ceuta 0-2 Celta Fortuna, Valladolid 1-0 Andorra, Oviedo 0-0 Burgos, Castellon 2-0 Albacete, Eibar 3-0 Granada y Sabadell 3-2 Cordoba), aunque varios de esos partidos no formaban parte del boleto de los 15 de la Quiniela. El escrutinio oficial de la Jornada 4 todavia no esta publicado (es normal, tarda unos dias tras jugarse). La Quiniela ya tiene una Jornada 5 con cierre de apuestas el 8 de septiembre a las 21:00, que segun los indicios disponibles mezclaria partidos de la Champions League del 8-9 de septiembre (Real Madrid-Inter, Barcelona-Feyenoord, Villarreal en Dortmund, Atletico en Liverpool, Betis en Lille) en vez de la jornada normal de Liga del fin de semana 12-14 de septiembre; pero todas las webs que publican el boleto oficial (loteriasyapuestas.es, laquiniela.es, libertaddigital.com, eduardolosilla.es, quiniela15.com) estan bloqueadas por la politica de red de este entorno, asi que no se puede confirmar el listado exacto, el orden del boleto ni los horarios, y queda para la proxima actualizacion. El historial Almeria-Cadiz en el campo del Almeria se descarta por cifras contradictorias entre fuentes. El importe exacto de la categoria de 10 aciertos de la Jornada 3 no esta confirmado (solo se conoce que hubo 100.155 acertantes); tampoco los importes de 11 y 10 aciertos de la Jornada 2.";
 
 // Nivel de partida de cada equipo: goles que se le suponen a favor y en contra por
 // partido antes de tener datos. Es una estimación, y pierde peso según se juegan jornadas.
@@ -532,7 +532,17 @@ const RESULTADOS = [
   { jor: 4, l: "almeria", v: "cadiz", gl: 3, gv: 2 }, // goles de Javi Muñoz, De la Fuente y Baptistão para el Almería, Javi Castro y un gol en propia para el Cádiz, 6 de septiembre
   { jor: 4, l: "logronof", v: "athleticf", gl: 0, gv: 1 }, // gol de Maddi Torre en el 33', el Athletic jugó con 10 desde el 14', 6 de septiembre en Las Gaunas
   { jor: 4, l: "rmadridf", v: "eibarf", gl: 0, gv: 0 }, // dominio total del Real Madrid sin puntería, 6 de septiembre en el Di Stéfano
-  { jor: 4, l: "getafe", v: "celta", gl: 0, gv: 0 } // roja a Arambarri (82') y gol anulado al Getafe (77'), 7 de septiembre en el Coliseum
+  { jor: 4, l: "getafe", v: "celta", gl: 0, gv: 0 }, // roja a Arambarri (82') y gol anulado al Getafe (77'), 7 de septiembre en el Coliseum
+  { jor: 4, l: "betis", v: "rmadrid", gl: 1, gv: 0 }, // gol de Troy Parrott (81'), penalti fallado por Mbappé en el descuento, 4 de septiembre en La Cartuja
+  { jor: 4, l: "elche", v: "rsociedad", gl: 2, gv: 3 }, // remontada donostiarra (Ochieng y Yangel Herrera 0-2, Lemar y Fer Niño igualan, Sučić decide en el 89'), el Elche jugó desde el 64' con uno menos por roja a Jon Martín, 7 de septiembre en el Martínez Valero
+  { jor: 4, l: "laspalmas", v: "leganes", gl: 0, gv: 0 }, // 4 de septiembre
+  { jor: 4, l: "eldense", v: "mallorca", gl: 0, gv: 0 }, // 5 de septiembre
+  { jor: 4, l: "ceuta", v: "celtaf", gl: 0, gv: 2 }, // goles de Adrià Capdevilla y Bernard Somuah, primera victoria del filial céltico fuera de Balaídos, 5 de septiembre
+  { jor: 4, l: "valladolid", v: "andorra", gl: 1, gv: 0 }, // gol en propia puerta de Diego Alende (12'), primera victoria pucelana de la temporada, 6 de septiembre en Zorrilla
+  { jor: 4, l: "oviedo", v: "burgos", gl: 0, gv: 0 }, // 6 de septiembre en el Carlos Tartiere
+  { jor: 4, l: "castellon", v: "albacete", gl: 2, gv: 0 }, // goles de Ousmane Camara y Suero, el Castellón queda líder con 10 puntos, 6 de septiembre
+  { jor: 4, l: "eibar", v: "granada", gl: 3, gv: 0 }, // goles de Martón, Adu Ares y Guruzeta, roja a Jair Amador (76'), 6 de septiembre en Ipurua
+  { jor: 4, l: "sabadell", v: "cordoba", gl: 3, gv: 2 } // doblete de Gioacchini, remontada del Córdoba con Carracedo y Enol Rodríguez, Urri sentencia de penalti en el 89', 7 de septiembre
 ];
 
 // Enfrentamientos directos de temporadas anteriores EN EL CAMPO DEL LOCAL.
